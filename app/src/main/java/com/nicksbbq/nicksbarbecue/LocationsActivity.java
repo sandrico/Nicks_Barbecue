@@ -1,19 +1,41 @@
 package com.nicksbbq.nicksbarbecue;
 
+import android.content.pm.PackageManager;
+import android.location.Location;
 import android.os.Bundle;
+import android.support.annotation.NonNull;
+import android.support.annotation.Nullable;
+import android.support.v4.app.ActivityCompat;
 import android.support.v4.app.FragmentActivity;
+import android.support.v4.content.ContextCompat;
+import android.widget.Toast;
 
+import com.google.android.gms.common.ConnectionResult;
+import com.google.android.gms.common.api.GoogleApiClient;
+import com.google.android.gms.common.api.PendingResult;
+import com.google.android.gms.location.LocationListener;
+import com.google.android.gms.location.LocationRequest;
+import com.google.android.gms.location.LocationServices;
+import com.google.android.gms.location.LocationSettingsRequest;
+import com.google.android.gms.location.LocationSettingsResult;
 import com.google.android.gms.maps.CameraUpdateFactory;
 import com.google.android.gms.maps.GoogleMap;
 import com.google.android.gms.maps.OnMapReadyCallback;
 import com.google.android.gms.maps.SupportMapFragment;
+import com.google.android.gms.maps.model.BitmapDescriptorFactory;
 import com.google.android.gms.maps.model.LatLng;
 import com.google.android.gms.maps.model.LatLngBounds;
 import com.google.android.gms.maps.model.MarkerOptions;
 
-public class LocationsActivity extends FragmentActivity implements OnMapReadyCallback {
+public class LocationsActivity extends FragmentActivity implements OnMapReadyCallback, GoogleApiClient.ConnectionCallbacks,
+        GoogleApiClient.OnConnectionFailedListener, LocationListener {
 
+    private static final int PERMISSION_ACCESS_COARSE_LOCATION = 1;
     private GoogleMap mMap;
+    private GoogleApiClient mGoogleApiClient;
+    LocationRequest mLocationRequest;
+    LatLng myLocation;
+    boolean permissionAccepted = false;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -23,6 +45,47 @@ public class LocationsActivity extends FragmentActivity implements OnMapReadyCal
         SupportMapFragment mapFragment = (SupportMapFragment) getSupportFragmentManager()
                 .findFragmentById(R.id.map);
         mapFragment.getMapAsync(this);
+
+        // Create an instance of GoogleAPIClient.
+        if (mGoogleApiClient == null) {
+            mGoogleApiClient = new GoogleApiClient.Builder(this)
+                    .addConnectionCallbacks(this)
+                    .addOnConnectionFailedListener(this)
+                    .addApi(LocationServices.API)
+                    .build();
+        }
+
+        if (ContextCompat.checkSelfPermission(this, android.Manifest.permission.ACCESS_FINE_LOCATION)
+                != PackageManager.PERMISSION_GRANTED) {
+            ActivityCompat.requestPermissions(this, new String[] {android.Manifest.permission.ACCESS_COARSE_LOCATION }, PERMISSION_ACCESS_COARSE_LOCATION);
+        }
+
+        createLocationRequest();
+    }
+
+    @Override
+    public void onRequestPermissionsResult(int requestCode, String[] permissions, int[] grantResults) {
+        switch (requestCode) {
+            case PERMISSION_ACCESS_COARSE_LOCATION:
+                if (grantResults.length > 0 && grantResults[0] == PackageManager.PERMISSION_GRANTED) {
+                    permissionAccepted = true;
+                } else {
+                    Toast.makeText(this, "Need your location!", Toast.LENGTH_SHORT).show();
+                }
+
+                break;
+        }
+    }
+
+    protected void createLocationRequest() {
+        mLocationRequest = new LocationRequest();
+        mLocationRequest.setInterval(20000);
+        mLocationRequest.setFastestInterval(10000);
+        mLocationRequest.setPriority(LocationRequest.PRIORITY_HIGH_ACCURACY);
+
+        LocationSettingsRequest.Builder builder = new LocationSettingsRequest.Builder().addLocationRequest(mLocationRequest);
+        PendingResult<LocationSettingsResult> result =
+                LocationServices.SettingsApi.checkLocationSettings(mGoogleApiClient, builder.build());
     }
 
 
@@ -38,25 +101,67 @@ public class LocationsActivity extends FragmentActivity implements OnMapReadyCal
     @Override
     public void onMapReady(GoogleMap googleMap) {
         mMap = googleMap;
+    }
 
+    @Override
+    public void onConnected(@Nullable Bundle bundle) {
+        Location mLastLocation = LocationServices.FusedLocationApi.getLastLocation(mGoogleApiClient);
+        if (mLastLocation != null) {
+            myLocation = new LatLng(mLastLocation.getLatitude(), mLastLocation.getLongitude());
+            setUpLocations();
+        }
+
+        if(permissionAccepted) {
+            LocationServices.FusedLocationApi.requestLocationUpdates(mGoogleApiClient, mLocationRequest, this);
+        }
+    }
+
+    @Override
+    protected void onResume() {
+        super.onResume();
+        mGoogleApiClient.connect();
+    }
+
+    @Override
+    protected void onPause() {
+        super.onPause();
+        if (mGoogleApiClient.isConnected()) {
+            mGoogleApiClient.disconnect();
+        }
+    }
+
+    @Override
+    public void onConnectionSuspended(int i) {
+
+    }
+
+    @Override
+    public void onConnectionFailed(@NonNull ConnectionResult connectionResult) {
+
+    }
+
+    @Override
+    public void onLocationChanged(Location location) {
+        myLocation = new LatLng(location.getLatitude(), location.getLongitude());
+        setUpLocations();
+    }
+
+    private void setUpLocations() {
         mMap.clear();
 
         LatLng burbank = new LatLng(41.747949, -87.794007);
-
         LatLng palosHeights = new LatLng(41.660979, -87.796735);
-
         LatLng tinleyPark = new LatLng(41.588739, -87.785334);
-
         LatLng romeoville = new LatLng(41.653091, -88.080102);
-
         LatLng homerGlen = new LatLng(41.601891, -87.930587);
 
         LatLngBounds.Builder builder = new LatLngBounds.Builder();
-        builder.include(mMap.addMarker(new MarkerOptions().position(burbank).title("Nick's BBQ - Burbank\n708-233-7427")).getPosition());
+        builder.include(mMap.addMarker(new MarkerOptions().position(burbank).title("Nick's BBQ - Burbank")).getPosition());
         builder.include(mMap.addMarker(new MarkerOptions().position(palosHeights).title("Nick's BBQ - Palos Heights")).getPosition());
         builder.include(mMap.addMarker(new MarkerOptions().position(tinleyPark).title("Nick's BBQ - Tinley Park")).getPosition());
         builder.include(mMap.addMarker(new MarkerOptions().position(romeoville).title("Nick's BBQ - Romeoville")).getPosition());
         builder.include(mMap.addMarker(new MarkerOptions().position(homerGlen).title("Nick's BBQ - Homer Glen")).getPosition());
+        builder.include(mMap.addMarker(new MarkerOptions().position(myLocation).title("Your Location").icon((BitmapDescriptorFactory.defaultMarker(BitmapDescriptorFactory.HUE_BLUE)))).getPosition());
         LatLngBounds bounds = builder.build();
 
         int width = getResources().getDisplayMetrics().widthPixels;

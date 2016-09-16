@@ -100,7 +100,8 @@ public class DisplayCouponActivity extends AppCompatActivity
             Intent i = new Intent(getApplicationContext(), MainActivity.class);
             startActivity(i);
         } else if (id == R.id.locations) {
-
+            Intent i = new Intent(getApplicationContext(), LocationsActivity.class);
+            startActivity(i);
         }
 
         DrawerLayout drawer = (DrawerLayout) findViewById(R.id.drawer_layout);
