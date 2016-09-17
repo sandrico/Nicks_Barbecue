@@ -34,7 +34,10 @@ import com.parse.ParseObject;
 import com.parse.ParseQuery;
 import com.parse.ParseUser;
 
+import java.text.SimpleDateFormat;
 import java.util.ArrayList;
+import java.util.Calendar;
+import java.util.Date;
 import java.util.List;
 
 public class MainActivity extends AppCompatActivity
@@ -83,7 +86,7 @@ public class MainActivity extends AppCompatActivity
         ParseFile file = new ParseFile("image.png", bytes);
         object.put("couponImage", file);
         object.put("couponDescription", "$1.25 off Full\nSlab Rib Dinner");
-        object.put("couponExpiration", "Expires 8/29/16");
+        object.put("couponExpiration", "8/29/16");
 
         ParseACL parseACL = new ParseACL();
         parseACL.setPublicWriteAccess(true);
@@ -111,9 +114,6 @@ public class MainActivity extends AppCompatActivity
         numberOfCoupons = 0;
         GridLayout gridLayout = (GridLayout) findViewById(R.id.mainGrid);
 
-
-        //query.whereEqualTo("couponUsed", "No");
-
         try {
             ParseQuery<ParseObject> query = ParseQuery.getQuery("Coupons");
             List<ParseObject> objects = query.find();
@@ -124,15 +124,19 @@ public class MainActivity extends AppCompatActivity
 
             if(objects2.size() == 0) {
                 if (objects.size() > 0) {
-                    numberOfCoupons = objects.size();
                     for (ParseObject object : objects) {
-                        couponIDs.add(object.getObjectId());
-                        couponDescriptions.add(object.getString("couponDescription"));
-                        couponExpirations.add(object.getString("couponExpiration"));
-                        ParseFile file = (ParseFile) object.get("couponImage");
-                        byte[] bytes = file.getData();
-                        Bitmap image = BitmapFactory.decodeByteArray(bytes, 0, bytes.length);
-                        couponImages.add(image);
+                        String exp = object.getString("couponExpiration");
+                        Date expDate = new SimpleDateFormat("MM/dd/yyyy").parse(exp);
+                        if(expDate.after(Calendar.getInstance().getTime())) {
+                            numberOfCoupons++;
+                            couponIDs.add(object.getObjectId());
+                            couponDescriptions.add(object.getString("couponDescription"));
+                            couponExpirations.add(exp);
+                            ParseFile file = (ParseFile) object.get("couponImage");
+                            byte[] bytes = file.getData();
+                            Bitmap image = BitmapFactory.decodeByteArray(bytes, 0, bytes.length);
+                            couponImages.add(image);
+                        }
                     }
                 }
             } else {
@@ -140,14 +144,18 @@ public class MainActivity extends AppCompatActivity
                     for(ParseObject object : objects) {
                         for(ParseObject object2 : objects2) {
                             if (!object.getObjectId().equals(object2.getString("couponID"))) {
-                                numberOfCoupons++;
-                                couponIDs.add(object.getObjectId());
-                                couponDescriptions.add(object.getString("couponDescription"));
-                                couponExpirations.add(object.getString("couponExpiration"));
-                                ParseFile file = (ParseFile) object.get("couponImage");
-                                byte[] bytes = file.getData();
-                                Bitmap image = BitmapFactory.decodeByteArray(bytes, 0, bytes.length);
-                                couponImages.add(image);
+                                String exp = object.getString("couponExpiration");
+                                Date expDate = new SimpleDateFormat("MM/dd/yyyy").parse(exp);
+                                if(expDate.after(Calendar.getInstance().getTime())) {
+                                    numberOfCoupons++;
+                                    couponIDs.add(object.getObjectId());
+                                    couponDescriptions.add(object.getString("couponDescription"));
+                                    couponExpirations.add(exp);
+                                    ParseFile file = (ParseFile) object.get("couponImage");
+                                    byte[] bytes = file.getData();
+                                    Bitmap image = BitmapFactory.decodeByteArray(bytes, 0, bytes.length);
+                                    couponImages.add(image);
+                                }
                             }
                         }
                     }
@@ -155,6 +163,8 @@ public class MainActivity extends AppCompatActivity
             }
         } catch (ParseException e) {
             Toast.makeText(getApplicationContext(), "No Coupons Found", Toast.LENGTH_LONG).show();
+        } catch (java.text.ParseException e) {
+            e.printStackTrace();
         }
 
         if(numberOfCoupons == 0) {
@@ -186,7 +196,6 @@ public class MainActivity extends AppCompatActivity
             int dim = (int) TypedValue.applyDimension(TypedValue.COMPLEX_UNIT_DIP, 100, getResources().getDisplayMetrics());
             RelativeLayout.LayoutParams imageLP = new RelativeLayout.LayoutParams(dim, dim);
             ImageView image = new ImageView(this);
-//            image.setImageResource(R.drawable.ribs);
             image.setImageBitmap(couponImages.get(position));
             image.setId(View.generateViewId());
             imageLP.addRule(RelativeLayout.CENTER_HORIZONTAL);
@@ -196,7 +205,6 @@ public class MainActivity extends AppCompatActivity
                     RelativeLayout.LayoutParams.WRAP_CONTENT,
                     RelativeLayout.LayoutParams.WRAP_CONTENT);
             TextView description = new TextView(this);
-//            description.setText("$1.25 off Full Slab\nRib Dinner!");
             description.setText(couponDescriptions.get(position));
             description.setTextColor(Color.RED);
             description.setId(View.generateViewId());
@@ -208,8 +216,7 @@ public class MainActivity extends AppCompatActivity
                     RelativeLayout.LayoutParams.WRAP_CONTENT,
                     RelativeLayout.LayoutParams.WRAP_CONTENT);
             TextView expiration = new TextView(this);
-            //expiration.setText("Expires 8/29/31");
-            expiration.setText(couponExpirations.get(position));
+            expiration.setText("Expires "+ couponExpirations.get(position));
             expiration.setTextColor(Color.BLACK);
             expiration.setId(View.generateViewId());
             expirationLP.addRule(RelativeLayout.CENTER_HORIZONTAL);

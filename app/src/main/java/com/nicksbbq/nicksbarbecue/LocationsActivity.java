@@ -8,6 +8,7 @@ import android.support.annotation.Nullable;
 import android.support.v4.app.ActivityCompat;
 import android.support.v4.app.FragmentActivity;
 import android.support.v4.content.ContextCompat;
+import android.widget.TextView;
 import android.widget.Toast;
 
 import com.google.android.gms.common.ConnectionResult;
@@ -25,17 +26,23 @@ import com.google.android.gms.maps.SupportMapFragment;
 import com.google.android.gms.maps.model.BitmapDescriptorFactory;
 import com.google.android.gms.maps.model.LatLng;
 import com.google.android.gms.maps.model.LatLngBounds;
+import com.google.android.gms.maps.model.Marker;
 import com.google.android.gms.maps.model.MarkerOptions;
 
 public class LocationsActivity extends FragmentActivity implements OnMapReadyCallback, GoogleApiClient.ConnectionCallbacks,
-        GoogleApiClient.OnConnectionFailedListener, LocationListener {
+        GoogleApiClient.OnConnectionFailedListener, LocationListener, GoogleMap.OnMarkerClickListener {
 
     private static final int PERMISSION_ACCESS_COARSE_LOCATION = 1;
     private GoogleMap mMap;
     private GoogleApiClient mGoogleApiClient;
-    LocationRequest mLocationRequest;
-    LatLng myLocation;
-    boolean permissionAccepted = false;
+    private LocationRequest mLocationRequest;
+    private LatLng myLocation;
+
+    private Marker burbankMarker;
+    private Marker palosMarker;
+    private Marker tinleyMarker;
+    private Marker romeoMarker;
+    private Marker homerMarker;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -68,7 +75,7 @@ public class LocationsActivity extends FragmentActivity implements OnMapReadyCal
         switch (requestCode) {
             case PERMISSION_ACCESS_COARSE_LOCATION:
                 if (grantResults.length > 0 && grantResults[0] == PackageManager.PERMISSION_GRANTED) {
-                    permissionAccepted = true;
+                    LocationServices.FusedLocationApi.requestLocationUpdates(mGoogleApiClient, mLocationRequest, this);
                 } else {
                     Toast.makeText(this, "Need your location!", Toast.LENGTH_SHORT).show();
                 }
@@ -79,8 +86,8 @@ public class LocationsActivity extends FragmentActivity implements OnMapReadyCal
 
     protected void createLocationRequest() {
         mLocationRequest = new LocationRequest();
-        mLocationRequest.setInterval(20000);
-        mLocationRequest.setFastestInterval(10000);
+        mLocationRequest.setInterval(5000);
+        mLocationRequest.setFastestInterval(1000);
         mLocationRequest.setPriority(LocationRequest.PRIORITY_HIGH_ACCURACY);
 
         LocationSettingsRequest.Builder builder = new LocationSettingsRequest.Builder().addLocationRequest(mLocationRequest);
@@ -111,7 +118,8 @@ public class LocationsActivity extends FragmentActivity implements OnMapReadyCal
             setUpLocations();
         }
 
-        if(permissionAccepted) {
+        if(ContextCompat.checkSelfPermission(this, android.Manifest.permission.ACCESS_FINE_LOCATION)
+                == PackageManager.PERMISSION_GRANTED) {
             LocationServices.FusedLocationApi.requestLocationUpdates(mGoogleApiClient, mLocationRequest, this);
         }
     }
@@ -155,12 +163,18 @@ public class LocationsActivity extends FragmentActivity implements OnMapReadyCal
         LatLng romeoville = new LatLng(41.653091, -88.080102);
         LatLng homerGlen = new LatLng(41.601891, -87.930587);
 
+        burbankMarker = mMap.addMarker(new MarkerOptions().position(burbank).title("Nick's BBQ - Burbank"));
+        palosMarker = mMap.addMarker(new MarkerOptions().position(palosHeights).title("Nick's BBQ - Palos Heights"));
+        tinleyMarker = mMap.addMarker(new MarkerOptions().position(tinleyPark).title("Nick's BBQ - Tinley Park"));
+        romeoMarker = mMap.addMarker(new MarkerOptions().position(romeoville).title("Nick's BBQ - Romeoville"));
+        homerMarker = mMap.addMarker(new MarkerOptions().position(homerGlen).title("Nick's BBQ - Homer Glen"));
+
         LatLngBounds.Builder builder = new LatLngBounds.Builder();
-        builder.include(mMap.addMarker(new MarkerOptions().position(burbank).title("Nick's BBQ - Burbank")).getPosition());
-        builder.include(mMap.addMarker(new MarkerOptions().position(palosHeights).title("Nick's BBQ - Palos Heights")).getPosition());
-        builder.include(mMap.addMarker(new MarkerOptions().position(tinleyPark).title("Nick's BBQ - Tinley Park")).getPosition());
-        builder.include(mMap.addMarker(new MarkerOptions().position(romeoville).title("Nick's BBQ - Romeoville")).getPosition());
-        builder.include(mMap.addMarker(new MarkerOptions().position(homerGlen).title("Nick's BBQ - Homer Glen")).getPosition());
+        builder.include(burbankMarker.getPosition());
+        builder.include(palosMarker.getPosition());
+        builder.include(tinleyMarker.getPosition());
+        builder.include(romeoMarker.getPosition());
+        builder.include(homerMarker.getPosition());
         builder.include(mMap.addMarker(new MarkerOptions().position(myLocation).title("Your Location").icon((BitmapDescriptorFactory.defaultMarker(BitmapDescriptorFactory.HUE_BLUE)))).getPosition());
         LatLngBounds bounds = builder.build();
 
@@ -169,5 +183,26 @@ public class LocationsActivity extends FragmentActivity implements OnMapReadyCal
         int padding = (int) (width * 0.10); // offset from edges of the map 12% of screen
 
         mMap.moveCamera(CameraUpdateFactory.newLatLngBounds(bounds, width, height, padding));
+
+        mMap.setOnMarkerClickListener(this);
+    }
+
+    @Override
+    public boolean onMarkerClick(Marker marker) {
+        TextView phoneText = (TextView) findViewById(R.id.phoneText);
+
+        if(marker.getTitle().equals("Nick's BBQ - Burbank")) {
+            phoneText.setText("Nick's BBQ - Burbank\nPhone Number: 708-233-7427\nAddress: 6945 W. 79 St.");
+        } else if(marker.getTitle().equals("Nick's BBQ - Palos Heights")) {
+            phoneText.setText("Nick's BBQ - Palos Heights\nPhone Number: 708-923-7427\nAddress: 12658 S. Harlem Ave.");
+        } else if(marker.getTitle().equals("Nick's BBQ - Tinley Park")) {
+            phoneText.setText("Nick's BBQ - Tinley Park\nPhone Number: 708-444-7427\nAddress: 16638 S. Oak Park");
+        } else if(marker.getTitle().equals("Nick's BBQ - Romeoville")) {
+            phoneText.setText("Nick's BBQ - Romeoville\nPhone Number: 815-372-0578\nAddress: 649 N. Independence Blvd.");
+        } else if(marker.getTitle().equals("Nick's BBQ - Homer Glen")) {
+            phoneText.setText("Nick's BBQ - Homer Glen\nPhone Number: 708-645-7427\nAddress: 15800 S. Bell Rd.");
+        }
+
+        return false;
     }
 }
