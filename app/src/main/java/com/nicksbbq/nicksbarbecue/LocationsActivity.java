@@ -43,6 +43,7 @@ public class LocationsActivity extends FragmentActivity implements OnMapReadyCal
     private Marker tinleyMarker;
     private Marker romeoMarker;
     private Marker homerMarker;
+    private boolean firstTime;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -52,6 +53,8 @@ public class LocationsActivity extends FragmentActivity implements OnMapReadyCal
         SupportMapFragment mapFragment = (SupportMapFragment) getSupportFragmentManager()
                 .findFragmentById(R.id.map);
         mapFragment.getMapAsync(this);
+
+        firstTime = true;
 
         // Create an instance of GoogleAPIClient.
         if (mGoogleApiClient == null) {
@@ -87,7 +90,7 @@ public class LocationsActivity extends FragmentActivity implements OnMapReadyCal
     protected void createLocationRequest() {
         mLocationRequest = new LocationRequest();
         mLocationRequest.setInterval(5000);
-        mLocationRequest.setFastestInterval(1000);
+        mLocationRequest.setFastestInterval(2500);
         mLocationRequest.setPriority(LocationRequest.PRIORITY_HIGH_ACCURACY);
 
         LocationSettingsRequest.Builder builder = new LocationSettingsRequest.Builder().addLocationRequest(mLocationRequest);
@@ -163,11 +166,11 @@ public class LocationsActivity extends FragmentActivity implements OnMapReadyCal
         LatLng romeoville = new LatLng(41.653091, -88.080102);
         LatLng homerGlen = new LatLng(41.601891, -87.930587);
 
-        burbankMarker = mMap.addMarker(new MarkerOptions().position(burbank).title("Nick's BBQ - Burbank"));
-        palosMarker = mMap.addMarker(new MarkerOptions().position(palosHeights).title("Nick's BBQ - Palos Heights"));
-        tinleyMarker = mMap.addMarker(new MarkerOptions().position(tinleyPark).title("Nick's BBQ - Tinley Park"));
-        romeoMarker = mMap.addMarker(new MarkerOptions().position(romeoville).title("Nick's BBQ - Romeoville"));
-        homerMarker = mMap.addMarker(new MarkerOptions().position(homerGlen).title("Nick's BBQ - Homer Glen"));
+        burbankMarker = mMap.addMarker(new MarkerOptions().position(burbank).title("Nick's BBQ - Burbank").icon(BitmapDescriptorFactory.fromResource(R.drawable.minifatboy)));
+        palosMarker = mMap.addMarker(new MarkerOptions().position(palosHeights).title("Nick's BBQ - Palos Heights").icon(BitmapDescriptorFactory.fromResource(R.drawable.minifatboy)));
+        tinleyMarker = mMap.addMarker(new MarkerOptions().position(tinleyPark).title("Nick's BBQ - Tinley Park").icon(BitmapDescriptorFactory.fromResource(R.drawable.minifatboy)));
+        romeoMarker = mMap.addMarker(new MarkerOptions().position(romeoville).title("Nick's BBQ - Romeoville").icon(BitmapDescriptorFactory.fromResource(R.drawable.minifatboy)));
+        homerMarker = mMap.addMarker(new MarkerOptions().position(homerGlen).title("Nick's BBQ - Homer Glen").icon(BitmapDescriptorFactory.fromResource(R.drawable.minifatboy)));
 
         LatLngBounds.Builder builder = new LatLngBounds.Builder();
         builder.include(burbankMarker.getPosition());
@@ -182,7 +185,10 @@ public class LocationsActivity extends FragmentActivity implements OnMapReadyCal
         int height = getResources().getDisplayMetrics().heightPixels;
         int padding = (int) (width * 0.10); // offset from edges of the map 12% of screen
 
-        mMap.moveCamera(CameraUpdateFactory.newLatLngBounds(bounds, width, height, padding));
+        if(firstTime) {
+            mMap.moveCamera(CameraUpdateFactory.newLatLngBounds(bounds, width, height, padding));
+            firstTime = false;
+        }
 
         mMap.setOnMarkerClickListener(this);
     }

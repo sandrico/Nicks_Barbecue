@@ -78,7 +78,8 @@ public class MainActivity extends AppCompatActivity
             }
         });
 
-/*        ParseObject object = new ParseObject("Coupons");
+        /*
+        ParseObject object = new ParseObject("Coupons");
         Bitmap bitmap = BitmapFactory.decodeResource(getResources(), R.drawable.ribs);
         ByteArrayOutputStream stream = new ByteArrayOutputStream();
         bitmap.compress(Bitmap.CompressFormat.PNG, 100, stream);
@@ -86,9 +87,36 @@ public class MainActivity extends AppCompatActivity
         ParseFile file = new ParseFile("image.png", bytes);
         object.put("couponImage", file);
         object.put("couponDescription", "$1.25 off Full\nSlab Rib Dinner");
-        object.put("couponExpiration", "8/29/16");
+        object.put("couponExpiration", "9/29/2016");
 
         ParseACL parseACL = new ParseACL();
+        parseACL.setPublicWriteAccess(true);
+        parseACL.setPublicReadAccess(true);
+        object.setACL(parseACL);
+
+        object.saveInBackground(new SaveCallback() {
+            public void done(ParseException e) {
+                if (e == null) {
+
+                } else {
+
+                }
+            }
+        });
+
+
+
+                 object = new ParseObject("Coupons");
+         bitmap = BitmapFactory.decodeResource(getResources(), R.drawable.logo);
+        stream = new ByteArrayOutputStream();
+        bitmap.compress(Bitmap.CompressFormat.PNG, 100, stream);
+        bytes = stream.toByteArray();
+        file = new ParseFile("image.png", bytes);
+        object.put("couponImage", file);
+        object.put("couponDescription", "$4.00 off when you spend\nover $19.99");
+        object.put("couponExpiration", "9/29/2016");
+
+        parseACL = new ParseACL();
         parseACL.setPublicWriteAccess(true);
         parseACL.setPublicReadAccess(true);
         object.setACL(parseACL);

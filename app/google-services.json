@@ -1,0 +1,42 @@
+{
+  "project_info": {
+    "project_number": "560689127614",
+    "firebase_url": "https://digital-seat-143605.firebaseio.com",
+    "project_id": "digital-seat-143605",
+    "storage_bucket": "digital-seat-143605.appspot.com"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:560689127614:android:63351b89a582e745",
+        "android_client_info": {
+          "package_name": "com.nicksbbq.nicksbarbecue"
+        }
+      },
+      "oauth_client": [
+        {
+          "client_id": "560689127614-83ms2qt8keifoduvg8pv4024fckgdedt.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
+      "api_key": [
+        {
+          "current_key": "AIzaSyD5khzj0ds2Y1-fvlsv6k3Ay3COZ7rmW1c"
+        }
+      ],
+      "services": {
+        "analytics_service": {
+          "status": 1
+        },
+        "appinvite_service": {
+          "status": 1,
+          "other_platform_oauth_client": []
+        },
+        "ads_service": {
+          "status": 2
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}
