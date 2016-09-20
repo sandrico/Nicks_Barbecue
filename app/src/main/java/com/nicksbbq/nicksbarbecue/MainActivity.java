@@ -6,12 +6,14 @@ import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
 import android.graphics.Color;
 import android.os.Bundle;
+import android.support.annotation.NonNull;
 import android.support.design.widget.NavigationView;
 import android.support.v4.view.GravityCompat;
 import android.support.v4.widget.DrawerLayout;
 import android.support.v7.app.ActionBarDrawerToggle;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.Toolbar;
+import android.util.Base64;
 import android.util.DisplayMetrics;
 import android.util.Log;
 import android.util.TypedValue;
@@ -25,20 +27,22 @@ import android.widget.RelativeLayout;
 import android.widget.TextView;
 import android.widget.Toast;
 
-import com.parse.LogInCallback;
-import com.parse.ParseAnalytics;
-import com.parse.ParseAnonymousUtils;
-import com.parse.ParseException;
-import com.parse.ParseFile;
-import com.parse.ParseObject;
-import com.parse.ParseQuery;
-import com.parse.ParseUser;
+import com.google.android.gms.tasks.OnCompleteListener;
+import com.google.android.gms.tasks.Task;
+import com.google.firebase.auth.AuthResult;
+import com.google.firebase.auth.FirebaseAuth;
+import com.google.firebase.auth.FirebaseUser;
+import com.google.firebase.database.DataSnapshot;
+import com.google.firebase.database.DatabaseError;
+import com.google.firebase.database.DatabaseReference;
+import com.google.firebase.database.FirebaseDatabase;
+import com.google.firebase.database.ValueEventListener;
 
+import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.Date;
-import java.util.List;
 
 public class MainActivity extends AppCompatActivity
         implements NavigationView.OnNavigationItemSelectedListener {
@@ -48,6 +52,13 @@ public class MainActivity extends AppCompatActivity
     static ArrayList<String> couponDescriptions;
     static ArrayList<String> couponExpirations;
     private int position, numberOfCoupons;
+
+    private FirebaseAuth mAuth;
+    private FirebaseAuth.AuthStateListener mAuthListener;
+    private DatabaseReference mDatabase;
+
+    private DataSnapshot allCoupons;
+    private DataSnapshot usedCoupons;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -65,71 +76,48 @@ public class MainActivity extends AppCompatActivity
         NavigationView navigationView = (NavigationView) findViewById(R.id.nav_view);
         navigationView.setNavigationItemSelectedListener(this);
 
-        ParseAnalytics.trackAppOpenedInBackground(getIntent());
+        mAuth = FirebaseAuth.getInstance();
 
-        ParseAnonymousUtils.logIn(new LogInCallback() {
+        mAuthListener = new FirebaseAuth.AuthStateListener() {
             @Override
-            public void done(ParseUser parseUser, ParseException e) {
-                if(e == null) {
-                    Log.i("Logged In", "Yes");
+            public void onAuthStateChanged(@NonNull FirebaseAuth firebaseAuth) {
+                FirebaseUser user = firebaseAuth.getCurrentUser();
+                if (user != null) {
+                    // User is signed in
+                    Log.i("Sign in", "onAuthStateChanged:signed_in:" + user.getUid());
                 } else {
-                    Log.i("Logged In", "No");
+                    // User is signed out
+                    Log.i("Sign out", "onAuthStateChanged:signed_out");
+                }
+            }
+        };
+
+        mAuth.signInAnonymously().addOnCompleteListener(this, new OnCompleteListener<AuthResult>() {
+            @Override
+            public void onComplete(@NonNull Task<AuthResult> task) {
+                Log.i("Sign in", "signInAnonymously:onComplete:" + task.isSuccessful());
+
+                // If sign in fails, display a message to the user. If sign in succeeds
+                // the auth state listener will be notified and logic to handle the
+                // signed in user can be handled in the listener.
+                if (!task.isSuccessful()) {
+                    Log.i("Sign in", "signInAnonymously", task.getException());
+                    Toast.makeText(getApplicationContext(), "Authentication failed.", Toast.LENGTH_SHORT).show();
                 }
             }
         });
 
-        /*
-        ParseObject object = new ParseObject("Coupons");
+        mDatabase = FirebaseDatabase.getInstance().getReference();
+/*
+        String key = mDatabase.push().getKey();
+        mDatabase.child("Coupons").child(key).child("couponDescription").setValue("$1.25 off Full\nSlab Rib Dinner");
+        mDatabase.child("Coupons").child(key).child("couponExpiration").setValue("9/29/2016");
         Bitmap bitmap = BitmapFactory.decodeResource(getResources(), R.drawable.ribs);
         ByteArrayOutputStream stream = new ByteArrayOutputStream();
         bitmap.compress(Bitmap.CompressFormat.PNG, 100, stream);
         byte[] bytes = stream.toByteArray();
-        ParseFile file = new ParseFile("image.png", bytes);
-        object.put("couponImage", file);
-        object.put("couponDescription", "$1.25 off Full\nSlab Rib Dinner");
-        object.put("couponExpiration", "9/29/2016");
-
-        ParseACL parseACL = new ParseACL();
-        parseACL.setPublicWriteAccess(true);
-        parseACL.setPublicReadAccess(true);
-        object.setACL(parseACL);
-
-        object.saveInBackground(new SaveCallback() {
-            public void done(ParseException e) {
-                if (e == null) {
-
-                } else {
-
-                }
-            }
-        });
-
-
-
-                 object = new ParseObject("Coupons");
-         bitmap = BitmapFactory.decodeResource(getResources(), R.drawable.logo);
-        stream = new ByteArrayOutputStream();
-        bitmap.compress(Bitmap.CompressFormat.PNG, 100, stream);
-        bytes = stream.toByteArray();
-        file = new ParseFile("image.png", bytes);
-        object.put("couponImage", file);
-        object.put("couponDescription", "$4.00 off when you spend\nover $19.99");
-        object.put("couponExpiration", "9/29/2016");
-
-        parseACL = new ParseACL();
-        parseACL.setPublicWriteAccess(true);
-        parseACL.setPublicReadAccess(true);
-        object.setACL(parseACL);
-
-        object.saveInBackground(new SaveCallback() {
-            public void done(ParseException e) {
-                if (e == null) {
-
-                } else {
-
-                }
-            }
-        });
+        String base64Image = Base64.encodeToString(bytes, Base64.DEFAULT);
+        mDatabase.child("Coupons").child(key).child("couponImage").setValue(base64Image);
 */
         createCoupons();
     }
@@ -140,120 +128,144 @@ public class MainActivity extends AppCompatActivity
         couponDescriptions = new ArrayList<String>();
         couponExpirations = new ArrayList<String>();
         numberOfCoupons = 0;
-        GridLayout gridLayout = (GridLayout) findViewById(R.id.mainGrid);
+        final GridLayout gridLayout = (GridLayout) findViewById(R.id.mainGrid);
 
-        try {
-            ParseQuery<ParseObject> query = ParseQuery.getQuery("Coupons");
-            List<ParseObject> objects = query.find();
+        mDatabase.child("Coupons").addListenerForSingleValueEvent(new ValueEventListener() {
+            @Override
+            public void onDataChange(final DataSnapshot allCoupons) {
+                mDatabase.child("UsedCoupons").child(mAuth.getCurrentUser().getUid()).addListenerForSingleValueEvent(new ValueEventListener() {
+                    @Override
+                    public void onDataChange(DataSnapshot usedCoupons) {
+                        if(!usedCoupons.hasChildren()) {
+                            if(allCoupons.hasChildren()) {
+                                for (DataSnapshot ds: allCoupons.getChildren()) {
+                                    Coupon coupon = ds.getValue(Coupon.class);
+                                    String exp = coupon.couponExpiration;
+                                    Date expDate = null;
+                                    try {
+                                        expDate = new SimpleDateFormat("MM/dd/yyyy").parse(exp);
+                                    } catch (ParseException e) {
+                                        e.printStackTrace();
+                                    }
+                                    if(expDate.after(Calendar.getInstance().getTime())) {
+                                        numberOfCoupons++;
+                                        couponIDs.add(ds.getKey());
+                                        couponDescriptions.add(coupon.couponDescription);
+                                        couponExpirations.add(exp);
 
-            ParseQuery<ParseObject> query2 = ParseQuery.getQuery("UsedCoupons");
-            query2.whereEqualTo("userName", ParseUser.getCurrentUser().getUsername());
-            List<ParseObject> objects2 = query2.find();
+                                        String base64Image = coupon.couponImage;
+                                        byte[] imageAsBytes = Base64.decode(base64Image.getBytes(), Base64.DEFAULT);
+                                        Bitmap image = BitmapFactory.decodeByteArray(imageAsBytes, 0, imageAsBytes.length);
+                                        couponImages.add(image);
 
-            if(objects2.size() == 0) {
-                if (objects.size() > 0) {
-                    for (ParseObject object : objects) {
-                        String exp = object.getString("couponExpiration");
-                        Date expDate = new SimpleDateFormat("MM/dd/yyyy").parse(exp);
-                        if(expDate.after(Calendar.getInstance().getTime())) {
-                            numberOfCoupons++;
-                            couponIDs.add(object.getObjectId());
-                            couponDescriptions.add(object.getString("couponDescription"));
-                            couponExpirations.add(exp);
-                            ParseFile file = (ParseFile) object.get("couponImage");
-                            byte[] bytes = file.getData();
-                            Bitmap image = BitmapFactory.decodeByteArray(bytes, 0, bytes.length);
-                            couponImages.add(image);
-                        }
-                    }
-                }
-            } else {
-                if(objects.size() > 0) {
-                    for(ParseObject object : objects) {
-                        for(ParseObject object2 : objects2) {
-                            if (!object.getObjectId().equals(object2.getString("couponID"))) {
-                                String exp = object.getString("couponExpiration");
-                                Date expDate = new SimpleDateFormat("MM/dd/yyyy").parse(exp);
-                                if(expDate.after(Calendar.getInstance().getTime())) {
-                                    numberOfCoupons++;
-                                    couponIDs.add(object.getObjectId());
-                                    couponDescriptions.add(object.getString("couponDescription"));
-                                    couponExpirations.add(exp);
-                                    ParseFile file = (ParseFile) object.get("couponImage");
-                                    byte[] bytes = file.getData();
-                                    Bitmap image = BitmapFactory.decodeByteArray(bytes, 0, bytes.length);
-                                    couponImages.add(image);
+                                    }
+                                }
+                            }
+                        } else {
+                            if(allCoupons.hasChildren()) {
+                                for(DataSnapshot ds: allCoupons.getChildren()) {
+                                    for(DataSnapshot ds2: usedCoupons.getChildren()) {
+                                        Coupon coupon = ds.getValue(Coupon.class);
+                                        if (!ds.getKey().equals(ds2.child("couponID").getValue())) {
+                                            String exp = coupon.couponExpiration;
+                                            Date expDate = null;
+                                            try {
+                                                expDate = new SimpleDateFormat("MM/dd/yyyy").parse(exp);
+                                            } catch (ParseException e) {
+                                                e.printStackTrace();
+                                            }
+                                            if(expDate.after(Calendar.getInstance().getTime())) {
+                                                numberOfCoupons++;
+                                                couponIDs.add(ds.getKey());
+                                                couponDescriptions.add(coupon.couponDescription);
+                                                couponExpirations.add(exp);
+
+                                                String base64Image = coupon.couponImage;
+                                                byte[] imageAsBytes = Base64.decode(base64Image.getBytes(), Base64.DEFAULT);
+                                                Bitmap image = BitmapFactory.decodeByteArray(imageAsBytes, 0, imageAsBytes.length);
+                                                couponImages.add(image);
+                                            }
+                                        }
+                                    }
                                 }
                             }
                         }
+
+                        if(numberOfCoupons == 0) {
+                            Toast.makeText(getApplicationContext(), "No Coupons Found", Toast.LENGTH_LONG).show();
+                        }
+
+                        for(position = 0; position < numberOfCoupons; position++) {
+                            GridLayout.LayoutParams relativeLP = new GridLayout.LayoutParams();
+                            final RelativeLayout relativeLayout = new RelativeLayout(MainActivity.this);
+                            relativeLayout.setId(position);
+                            relativeLayout.setGravity(Gravity.FILL);
+                            DisplayMetrics metrics = new DisplayMetrics();
+                            getWindowManager().getDefaultDisplay().getMetrics(metrics);
+                            relativeLayout.setMinimumWidth(metrics.widthPixels/2-20);
+                            Resources r = getResources();
+                            float pxLeftMargin = TypedValue.applyDimension(TypedValue.COMPLEX_UNIT_DIP, 5, r.getDisplayMetrics());
+                            relativeLP.setMargins(Math.round(pxLeftMargin), Math.round(pxLeftMargin), Math.round(pxLeftMargin), Math.round(pxLeftMargin));
+                            relativeLayout.setBackgroundColor(Color.WHITE);
+                            relativeLayout.setLayoutParams(relativeLP);
+                            relativeLayout.setOnClickListener(new View.OnClickListener() {
+                                @Override
+                                public void onClick(View view) {
+                                    Intent intent = new Intent(getApplicationContext(), DisplayCouponActivity.class);
+                                    intent.putExtra("position", relativeLayout.getId());
+                                    startActivity(intent);
+                                }
+                            });
+
+                            int dim = (int) TypedValue.applyDimension(TypedValue.COMPLEX_UNIT_DIP, 100, getResources().getDisplayMetrics());
+                            RelativeLayout.LayoutParams imageLP = new RelativeLayout.LayoutParams(dim, dim);
+                            ImageView image = new ImageView(MainActivity.this);
+                            image.setImageBitmap(couponImages.get(position));
+                            image.setId(View.generateViewId());
+                            imageLP.addRule(RelativeLayout.CENTER_HORIZONTAL);
+                            relativeLayout.addView(image, imageLP);
+
+                            RelativeLayout.LayoutParams descriptionLP = new RelativeLayout.LayoutParams(
+                                    RelativeLayout.LayoutParams.WRAP_CONTENT,
+                                    RelativeLayout.LayoutParams.WRAP_CONTENT);
+                            TextView description = new TextView(MainActivity.this);
+                            description.setText(couponDescriptions.get(position));
+                            description.setTextColor(Color.RED);
+                            description.setId(View.generateViewId());
+                            descriptionLP.addRule(RelativeLayout.CENTER_HORIZONTAL);
+                            descriptionLP.addRule(RelativeLayout.BELOW, image.getId());
+                            relativeLayout.addView(description, descriptionLP);
+
+                            RelativeLayout.LayoutParams expirationLP = new RelativeLayout.LayoutParams(
+                                    RelativeLayout.LayoutParams.WRAP_CONTENT,
+                                    RelativeLayout.LayoutParams.WRAP_CONTENT);
+                            TextView expiration = new TextView(MainActivity.this);
+                            expiration.setText("Expires "+ couponExpirations.get(position));
+                            expiration.setTextColor(Color.BLACK);
+                            expiration.setId(View.generateViewId());
+                            expirationLP.addRule(RelativeLayout.CENTER_HORIZONTAL);
+                            expirationLP.addRule(RelativeLayout.BELOW, description.getId());
+                            relativeLayout.addView(expiration, expirationLP);
+
+                            gridLayout.addView(relativeLayout, position);
+                        }
                     }
-                }
+
+                    @Override
+                    public void onCancelled(DatabaseError databaseError) {
+                        Log.w("Coupon query", "getUser:onCancelled", databaseError.toException());
+                        // ...
+                    }
+                });
+
             }
-        } catch (ParseException e) {
-            Toast.makeText(getApplicationContext(), "No Coupons Found", Toast.LENGTH_LONG).show();
-        } catch (java.text.ParseException e) {
-            e.printStackTrace();
-        }
 
-        if(numberOfCoupons == 0) {
-            Toast.makeText(getApplicationContext(), "No Coupons Found", Toast.LENGTH_LONG).show();
-        }
-
-        for(position = 0; position < numberOfCoupons; position++) {
-            GridLayout.LayoutParams relativeLP = new GridLayout.LayoutParams();
-            final RelativeLayout relativeLayout = new RelativeLayout(this);
-            relativeLayout.setId(position);
-            relativeLayout.setGravity(Gravity.FILL);
-            DisplayMetrics metrics = new DisplayMetrics();
-            getWindowManager().getDefaultDisplay().getMetrics(metrics);
-            relativeLayout.setMinimumWidth(metrics.widthPixels/2-20);
-            Resources r = getResources();
-            float pxLeftMargin = TypedValue.applyDimension(TypedValue.COMPLEX_UNIT_DIP, 5, r.getDisplayMetrics());
-            relativeLP.setMargins(Math.round(pxLeftMargin), Math.round(pxLeftMargin), Math.round(pxLeftMargin), Math.round(pxLeftMargin));
-            relativeLayout.setBackgroundColor(Color.WHITE);
-            relativeLayout.setLayoutParams(relativeLP);
-            relativeLayout.setOnClickListener(new View.OnClickListener() {
-                @Override
-                public void onClick(View view) {
-                    Intent intent = new Intent(getApplicationContext(), DisplayCouponActivity.class);
-                    intent.putExtra("position", relativeLayout.getId());
-                    startActivity(intent);
+            @Override
+            public void onCancelled(DatabaseError databaseError) {
+                Log.w("Coupon query", "getUser:onCancelled", databaseError.toException());
+                // ...
                 }
-            });
-
-            int dim = (int) TypedValue.applyDimension(TypedValue.COMPLEX_UNIT_DIP, 100, getResources().getDisplayMetrics());
-            RelativeLayout.LayoutParams imageLP = new RelativeLayout.LayoutParams(dim, dim);
-            ImageView image = new ImageView(this);
-            image.setImageBitmap(couponImages.get(position));
-            image.setId(View.generateViewId());
-            imageLP.addRule(RelativeLayout.CENTER_HORIZONTAL);
-            relativeLayout.addView(image, imageLP);
-
-            RelativeLayout.LayoutParams descriptionLP = new RelativeLayout.LayoutParams(
-                    RelativeLayout.LayoutParams.WRAP_CONTENT,
-                    RelativeLayout.LayoutParams.WRAP_CONTENT);
-            TextView description = new TextView(this);
-            description.setText(couponDescriptions.get(position));
-            description.setTextColor(Color.RED);
-            description.setId(View.generateViewId());
-            descriptionLP.addRule(RelativeLayout.CENTER_HORIZONTAL);
-            descriptionLP.addRule(RelativeLayout.BELOW, image.getId());
-            relativeLayout.addView(description, descriptionLP);
-
-            RelativeLayout.LayoutParams expirationLP = new RelativeLayout.LayoutParams(
-                    RelativeLayout.LayoutParams.WRAP_CONTENT,
-                    RelativeLayout.LayoutParams.WRAP_CONTENT);
-            TextView expiration = new TextView(this);
-            expiration.setText("Expires "+ couponExpirations.get(position));
-            expiration.setTextColor(Color.BLACK);
-            expiration.setId(View.generateViewId());
-            expirationLP.addRule(RelativeLayout.CENTER_HORIZONTAL);
-            expirationLP.addRule(RelativeLayout.BELOW, description.getId());
-            relativeLayout.addView(expiration, expirationLP);
-
-            gridLayout.addView(relativeLayout, position);
-        }
-
+        });
     }
 
     @Override
@@ -306,4 +318,19 @@ public class MainActivity extends AppCompatActivity
         drawer.closeDrawer(GravityCompat.START);
         return true;
     }
+
+    @Override
+    public void onStart() {
+        super.onStart();
+        mAuth.addAuthStateListener(mAuthListener);
+    }
+
+    @Override
+    public void onStop() {
+        super.onStop();
+        if (mAuthListener != null) {
+            mAuth.removeAuthStateListener(mAuthListener);
+        }
+    }
 }
+

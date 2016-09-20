@@ -16,6 +16,7 @@ import android.support.v4.widget.DrawerLayout;
 import android.support.v7.app.ActionBarDrawerToggle;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.Toolbar;
+import android.util.Log;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
@@ -31,10 +32,12 @@ import com.google.android.gms.location.LocationRequest;
 import com.google.android.gms.location.LocationServices;
 import com.google.android.gms.location.LocationSettingsRequest;
 import com.google.android.gms.location.LocationSettingsResult;
-import com.parse.ParseException;
-import com.parse.ParseObject;
-import com.parse.ParseQuery;
-import com.parse.ParseUser;
+import com.google.firebase.auth.FirebaseAuth;
+import com.google.firebase.database.DataSnapshot;
+import com.google.firebase.database.DatabaseError;
+import com.google.firebase.database.DatabaseReference;
+import com.google.firebase.database.FirebaseDatabase;
+import com.google.firebase.database.ValueEventListener;
 
 import java.util.List;
 
@@ -47,6 +50,8 @@ public class DisplayCouponActivity extends AppCompatActivity
     private GoogleApiClient mGoogleApiClient;
     LocationRequest mLocationRequest;
     Location myLocation;
+
+    private DatabaseReference mDatabase;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -91,6 +96,8 @@ public class DisplayCouponActivity extends AppCompatActivity
         }
 
         createLocationRequest();
+
+        mDatabase = FirebaseDatabase.getInstance().getReference();
     }
 
     @Override
@@ -197,64 +204,66 @@ public class DisplayCouponActivity extends AppCompatActivity
     }
 
     public void redeemCoupon(View view) {
-        boolean couponUsed = false;
-        ParseQuery<ParseObject> query = ParseQuery.getQuery("UsedCoupons");
-        query.whereEqualTo("userName", ParseUser.getCurrentUser().getUsername());
-        try {
-            List<ParseObject> objects = query.find();
-            if (objects.size() > 0) {
-                for (ParseObject object : objects) {
-                    if (object.getString("couponID").equals(MainActivity.couponIDs.get(position))) {
-                        couponUsed = true;
+        mDatabase.child("UsedCoupons").child(FirebaseAuth.getInstance().getCurrentUser().getUid()).addListenerForSingleValueEvent(new ValueEventListener() {
+            @Override
+            public void onDataChange(DataSnapshot usedCoupons) {
+                boolean couponUsed = false;
+                if(usedCoupons.hasChildren()) {
+                    for (DataSnapshot ds : usedCoupons.getChildren()) {
+                        if (ds.child("couponID").getValue().equals(MainActivity.couponIDs.get(position))) {
+                            couponUsed = true;
+                        }
                     }
                 }
-            }
-        } catch (ParseException e) {
-            e.printStackTrace();
-        }
 
-        if (!couponUsed) {
-            Location burbank = new Location("Burbank");
-            burbank.setLatitude(41.747949);
-            burbank.setLongitude(-87.794007);
-            Location palosHeights = new Location("Palos Heights");
-            palosHeights.setLatitude(41.660979);
-            palosHeights.setLongitude(-87.796735);
-            Location tinleyPark = new Location("Tinley Park");
-            tinleyPark.setLatitude(41.588739);
-            tinleyPark.setLongitude(-87.785334);
-            Location romeoville = new Location("Romeoville");
-            romeoville.setLatitude(41.653091);
-            romeoville.setLongitude(-88.080102);
-            Location homerGlen = new Location("Homer Glen");
-            homerGlen.setLatitude(41.601891);
-            homerGlen.setLongitude(-87.930587);
+                if (couponUsed) {
+                    Toast.makeText(getApplicationContext(), "Coupon already redeemed.", Toast.LENGTH_LONG).show();
+                } else {
+                    Location burbank = new Location("Burbank");
+                    burbank.setLatitude(41.747949);
+                    burbank.setLongitude(-87.794007);
+                    Location palosHeights = new Location("Palos Heights");
+                    palosHeights.setLatitude(41.660979);
+                    palosHeights.setLongitude(-87.796735);
+                    Location tinleyPark = new Location("Tinley Park");
+                    tinleyPark.setLatitude(41.588739);
+                    tinleyPark.setLongitude(-87.785334);
+                    Location romeoville = new Location("Romeoville");
+                    romeoville.setLatitude(41.653091);
+                    romeoville.setLongitude(-88.080102);
+                    Location homerGlen = new Location("Homer Glen");
+                    homerGlen.setLatitude(41.601891);
+                    homerGlen.setLongitude(-87.930587);
 
-            if(myLocation.distanceTo(burbank) < 150.0 || myLocation.distanceTo(palosHeights) < 150.0 ||
-                    myLocation.distanceTo(tinleyPark) < 150.0 || myLocation.distanceTo(romeoville) < 150.0 ||
-                    myLocation.distanceTo(homerGlen) < 150.0) {
-                new AlertDialog.Builder(DisplayCouponActivity.this)
-                        .setIcon(android.R.drawable.ic_dialog_alert)
-                        .setTitle("Confirm Redeem Coupon")
-                        .setMessage("Are you sure you want to use this coupon?")
-                        .setPositiveButton("Yes", new DialogInterface.OnClickListener() {
-                            @Override
-                            public void onClick(DialogInterface dialogInterface, int i) {
-                                ParseObject object = new ParseObject("UsedCoupons");
-                                object.put("userName", ParseUser.getCurrentUser().getUsername());
-                                object.put("couponID", MainActivity.couponIDs.get(position));
-                                object.saveInBackground();
-                                Toast.makeText(getApplicationContext(), "Coupon Redeemed.  Thank you!", Toast.LENGTH_LONG).show();
-                            }
-                        })
-                        .setNegativeButton("No", null)
-                        .show();
-            } else {
-                Toast.makeText(getApplicationContext(), "Coupon can only be redeemed in store.", Toast.LENGTH_LONG).show();
+                    //       if(myLocation.distanceTo(burbank) < 150.0 || myLocation.distanceTo(palosHeights) < 150.0 ||
+                    //             myLocation.distanceTo(tinleyPark) < 150.0 || myLocation.distanceTo(romeoville) < 150.0 ||
+                    //           myLocation.distanceTo(homerGlen) < 150.0) {
+                    new AlertDialog.Builder(DisplayCouponActivity.this)
+                            .setIcon(android.R.drawable.ic_dialog_alert)
+                            .setTitle("Confirm Redeem Coupon")
+                            .setMessage("Are you sure you want to use this coupon?")
+                            .setPositiveButton("Yes", new DialogInterface.OnClickListener() {
+                                @Override
+                                public void onClick(DialogInterface dialogInterface, int i) {
+                                    String key = mDatabase.push().getKey();
+                                    mDatabase.child("UsedCoupons").child(FirebaseAuth.getInstance().getCurrentUser().getUid()).child(key).child("couponID").setValue(MainActivity.couponIDs.get(position));
+                                    Toast.makeText(getApplicationContext(), "Coupon Redeemed.  Thank you!", Toast.LENGTH_LONG).show();
+                                }
+                            })
+                            .setNegativeButton("No", null)
+                            .show();
+                    //  } else {
+                    //    Toast.makeText(getApplicationContext(), "Coupon can only be redeemed in store.", Toast.LENGTH_LONG).show();
+                    //}
+                }
             }
-        } else {
-            Toast.makeText(getApplicationContext(), "Coupon already redeemed.", Toast.LENGTH_LONG).show();
-        }
+
+            @Override
+            public void onCancelled(DatabaseError databaseError) {
+                Log.w("Coupon query", "getUser:onCancelled", databaseError.toException());
+                // ...
+            }
+        });
     }
 
     @Override
