@@ -208,7 +208,7 @@ public class DisplayCouponActivity extends AppCompatActivity
             @Override
             public void onDataChange(DataSnapshot usedCoupons) {
                 boolean couponUsed = false;
-                if(usedCoupons.hasChildren()) {
+                if(usedCoupons != null && usedCoupons.hasChildren()) {
                     for (DataSnapshot ds : usedCoupons.getChildren()) {
                         if (ds.child("couponID").getValue().equals(MainActivity.couponIDs.get(position))) {
                             couponUsed = true;
@@ -235,33 +235,33 @@ public class DisplayCouponActivity extends AppCompatActivity
                     homerGlen.setLatitude(41.601891);
                     homerGlen.setLongitude(-87.930587);
 
-                    //       if(myLocation.distanceTo(burbank) < 150.0 || myLocation.distanceTo(palosHeights) < 150.0 ||
-                    //             myLocation.distanceTo(tinleyPark) < 150.0 || myLocation.distanceTo(romeoville) < 150.0 ||
-                    //           myLocation.distanceTo(homerGlen) < 150.0) {
-                    new AlertDialog.Builder(DisplayCouponActivity.this)
-                            .setIcon(android.R.drawable.ic_dialog_alert)
-                            .setTitle("Confirm Redeem Coupon")
-                            .setMessage("Are you sure you want to use this coupon?")
-                            .setPositiveButton("Yes", new DialogInterface.OnClickListener() {
-                                @Override
-                                public void onClick(DialogInterface dialogInterface, int i) {
-                                    String key = mDatabase.push().getKey();
-                                    mDatabase.child("UsedCoupons").child(FirebaseAuth.getInstance().getCurrentUser().getUid()).child(key).child("couponID").setValue(MainActivity.couponIDs.get(position));
-                                    Toast.makeText(getApplicationContext(), "Coupon Redeemed.  Thank you!", Toast.LENGTH_LONG).show();
-                                }
-                            })
-                            .setNegativeButton("No", null)
-                            .show();
-                    //  } else {
-                    //    Toast.makeText(getApplicationContext(), "Coupon can only be redeemed in store.", Toast.LENGTH_LONG).show();
-                    //}
+                    if (myLocation.distanceTo(burbank) < 150.0 || myLocation.distanceTo(palosHeights) < 150.0 ||
+                            myLocation.distanceTo(tinleyPark) < 150.0 || myLocation.distanceTo(romeoville) < 150.0 ||
+                            myLocation.distanceTo(homerGlen) < 150.0) {
+                        new AlertDialog.Builder(DisplayCouponActivity.this)
+                                .setIcon(android.R.drawable.ic_dialog_alert)
+                                .setTitle("Confirm Redeem Coupon")
+                                .setMessage("Are you sure you want to use this coupon?")
+                                .setPositiveButton("Yes", new DialogInterface.OnClickListener() {
+                                    @Override
+                                    public void onClick(DialogInterface dialogInterface, int i) {
+                                        String key = mDatabase.push().getKey();
+                                        mDatabase.child("UsedCoupons").child(FirebaseAuth.getInstance().getCurrentUser().getUid()).child(key).child("couponID").setValue(MainActivity.couponIDs.get(position));
+                                        Toast.makeText(getApplicationContext(), "Coupon Redeemed.  Thank you!", Toast.LENGTH_LONG).show();
+                                    }
+                                })
+                                .setNegativeButton("No", null)
+                                .show();
+                    } else {
+                        Toast.makeText(getApplicationContext(), "Coupon can only be redeemed in store.", Toast.LENGTH_LONG).show();
+
+                    }
                 }
             }
 
             @Override
             public void onCancelled(DatabaseError databaseError) {
                 Log.w("Coupon query", "getUser:onCancelled", databaseError.toException());
-                // ...
             }
         });
     }

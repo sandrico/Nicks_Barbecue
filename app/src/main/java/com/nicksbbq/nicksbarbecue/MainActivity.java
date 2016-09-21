@@ -57,9 +57,6 @@ public class MainActivity extends AppCompatActivity
     private FirebaseAuth.AuthStateListener mAuthListener;
     private DatabaseReference mDatabase;
 
-    private DataSnapshot allCoupons;
-    private DataSnapshot usedCoupons;
-
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -110,7 +107,7 @@ public class MainActivity extends AppCompatActivity
         mDatabase = FirebaseDatabase.getInstance().getReference();
 /*
         String key = mDatabase.push().getKey();
-        mDatabase.child("Coupons").child(key).child("couponDescription").setValue("$1.25 off Full\nSlab Rib Dinner");
+        mDatabase.child("Coupons").child(key).child("couponDescription").setValue("$1.25 off Full Slab Rib Dinner");
         mDatabase.child("Coupons").child(key).child("couponExpiration").setValue("9/29/2016");
         Bitmap bitmap = BitmapFactory.decodeResource(getResources(), R.drawable.ribs);
         ByteArrayOutputStream stream = new ByteArrayOutputStream();
@@ -136,8 +133,8 @@ public class MainActivity extends AppCompatActivity
                 mDatabase.child("UsedCoupons").child(mAuth.getCurrentUser().getUid()).addListenerForSingleValueEvent(new ValueEventListener() {
                     @Override
                     public void onDataChange(DataSnapshot usedCoupons) {
-                        if(!usedCoupons.hasChildren()) {
-                            if(allCoupons.hasChildren()) {
+                        if(usedCoupons != null && !usedCoupons.hasChildren()) {
+                            if(allCoupons != null && allCoupons.hasChildren()) {
                                 for (DataSnapshot ds: allCoupons.getChildren()) {
                                     Coupon coupon = ds.getValue(Coupon.class);
                                     String exp = coupon.couponExpiration;
@@ -162,29 +159,35 @@ public class MainActivity extends AppCompatActivity
                                 }
                             }
                         } else {
-                            if(allCoupons.hasChildren()) {
+                            if(allCoupons != null && allCoupons.hasChildren()) {
                                 for(DataSnapshot ds: allCoupons.getChildren()) {
+                                    boolean shouldDisplayCoupon = true;
                                     for(DataSnapshot ds2: usedCoupons.getChildren()) {
-                                        Coupon coupon = ds.getValue(Coupon.class);
-                                        if (!ds.getKey().equals(ds2.child("couponID").getValue())) {
-                                            String exp = coupon.couponExpiration;
-                                            Date expDate = null;
-                                            try {
-                                                expDate = new SimpleDateFormat("MM/dd/yyyy").parse(exp);
-                                            } catch (ParseException e) {
-                                                e.printStackTrace();
-                                            }
-                                            if(expDate.after(Calendar.getInstance().getTime())) {
-                                                numberOfCoupons++;
-                                                couponIDs.add(ds.getKey());
-                                                couponDescriptions.add(coupon.couponDescription);
-                                                couponExpirations.add(exp);
+                                        if (ds.getKey().equals(ds2.child("couponID").getValue())) {
+                                            shouldDisplayCoupon = false;
+                                        }
 
-                                                String base64Image = coupon.couponImage;
-                                                byte[] imageAsBytes = Base64.decode(base64Image.getBytes(), Base64.DEFAULT);
-                                                Bitmap image = BitmapFactory.decodeByteArray(imageAsBytes, 0, imageAsBytes.length);
-                                                couponImages.add(image);
-                                            }
+                                    }
+
+                                    if(shouldDisplayCoupon) {
+                                        Coupon coupon = ds.getValue(Coupon.class);
+                                        String exp = coupon.couponExpiration;
+                                        Date expDate = null;
+                                        try {
+                                            expDate = new SimpleDateFormat("MM/dd/yyyy").parse(exp);
+                                        } catch (ParseException e) {
+                                            e.printStackTrace();
+                                        }
+                                        if (expDate.after(Calendar.getInstance().getTime())) {
+                                            numberOfCoupons++;
+                                            couponIDs.add(ds.getKey());
+                                            couponDescriptions.add(coupon.couponDescription);
+                                            couponExpirations.add(exp);
+
+                                            String base64Image = coupon.couponImage;
+                                            byte[] imageAsBytes = Base64.decode(base64Image.getBytes(), Base64.DEFAULT);
+                                            Bitmap image = BitmapFactory.decodeByteArray(imageAsBytes, 0, imageAsBytes.length);
+                                            couponImages.add(image);
                                         }
                                     }
                                 }
@@ -196,13 +199,18 @@ public class MainActivity extends AppCompatActivity
                         }
 
                         for(position = 0; position < numberOfCoupons; position++) {
+                            DisplayMetrics metrics = new DisplayMetrics();
+                            getWindowManager().getDefaultDisplay().getMetrics(metrics);
                             GridLayout.LayoutParams relativeLP = new GridLayout.LayoutParams();
+                            relativeLP.width = metrics.widthPixels/2-30;
+                            relativeLP.height = GridLayout.LayoutParams.WRAP_CONTENT; //450
+
                             final RelativeLayout relativeLayout = new RelativeLayout(MainActivity.this);
                             relativeLayout.setId(position);
                             relativeLayout.setGravity(Gravity.FILL);
-                            DisplayMetrics metrics = new DisplayMetrics();
-                            getWindowManager().getDefaultDisplay().getMetrics(metrics);
-                            relativeLayout.setMinimumWidth(metrics.widthPixels/2-20);
+                            //DisplayMetrics metrics = new DisplayMetrics();
+                            //getWindowManager().getDefaultDisplay().getMetrics(metrics);
+                            //relativeLayout.setMinimumWidth(metrics.widthPixels/2-20);
                             Resources r = getResources();
                             float pxLeftMargin = TypedValue.applyDimension(TypedValue.COMPLEX_UNIT_DIP, 5, r.getDisplayMetrics());
                             relativeLP.setMargins(Math.round(pxLeftMargin), Math.round(pxLeftMargin), Math.round(pxLeftMargin), Math.round(pxLeftMargin));
@@ -254,7 +262,6 @@ public class MainActivity extends AppCompatActivity
                     @Override
                     public void onCancelled(DatabaseError databaseError) {
                         Log.w("Coupon query", "getUser:onCancelled", databaseError.toException());
-                        // ...
                     }
                 });
 
