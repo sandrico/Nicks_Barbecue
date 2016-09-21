@@ -107,23 +107,27 @@ public class MainActivity extends AppCompatActivity
         mDatabase = FirebaseDatabase.getInstance().getReference();
 /*
         String key = mDatabase.push().getKey();
-        mDatabase.child("Coupons").child(key).child("couponDescription").setValue("$1.25 off Full Slab Rib Dinner");
+        mDatabase.child("Coupons").child(key).child("couponDescription").setValue("$4.00 off when you spend over $19.99");
         mDatabase.child("Coupons").child(key).child("couponExpiration").setValue("9/29/2016");
-        Bitmap bitmap = BitmapFactory.decodeResource(getResources(), R.drawable.ribs);
+        Bitmap bitmap = BitmapFactory.decodeResource(getResources(), R.drawable.logo);
         ByteArrayOutputStream stream = new ByteArrayOutputStream();
         bitmap.compress(Bitmap.CompressFormat.PNG, 100, stream);
         byte[] bytes = stream.toByteArray();
         String base64Image = Base64.encodeToString(bytes, Base64.DEFAULT);
         mDatabase.child("Coupons").child(key).child("couponImage").setValue(base64Image);
 */
-        createCoupons();
-    }
-
-    private void createCoupons() {
         couponIDs = new ArrayList<String>();
         couponImages = new ArrayList<Bitmap>();
         couponDescriptions = new ArrayList<String>();
         couponExpirations = new ArrayList<String>();
+        createCoupons();
+    }
+
+    private void createCoupons() {
+        couponIDs.clear();
+        couponImages.clear();
+        couponDescriptions.clear();
+        couponExpirations.clear();
         numberOfCoupons = 0;
         final GridLayout gridLayout = (GridLayout) findViewById(R.id.mainGrid);
 
@@ -154,7 +158,6 @@ public class MainActivity extends AppCompatActivity
                                         byte[] imageAsBytes = Base64.decode(base64Image.getBytes(), Base64.DEFAULT);
                                         Bitmap image = BitmapFactory.decodeByteArray(imageAsBytes, 0, imageAsBytes.length);
                                         couponImages.add(image);
-
                                     }
                                 }
                             }
@@ -222,6 +225,7 @@ public class MainActivity extends AppCompatActivity
                                     Intent intent = new Intent(getApplicationContext(), DisplayCouponActivity.class);
                                     intent.putExtra("position", relativeLayout.getId());
                                     startActivity(intent);
+                                    finish();
                                 }
                             });
 
@@ -323,6 +327,7 @@ public class MainActivity extends AppCompatActivity
 
         DrawerLayout drawer = (DrawerLayout) findViewById(R.id.drawer_layout);
         drawer.closeDrawer(GravityCompat.START);
+        finish();
         return true;
     }
 
