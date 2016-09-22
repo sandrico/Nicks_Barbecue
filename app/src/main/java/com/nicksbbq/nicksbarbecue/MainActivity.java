@@ -23,6 +23,7 @@ import android.view.MenuItem;
 import android.view.View;
 import android.widget.GridLayout;
 import android.widget.ImageView;
+import android.widget.ProgressBar;
 import android.widget.RelativeLayout;
 import android.widget.TextView;
 import android.widget.Toast;
@@ -120,7 +121,9 @@ public class MainActivity extends AppCompatActivity
         couponImages = new ArrayList<Bitmap>();
         couponDescriptions = new ArrayList<String>();
         couponExpirations = new ArrayList<String>();
+
         createCoupons();
+
     }
 
     private void createCoupons() {
@@ -131,6 +134,8 @@ public class MainActivity extends AppCompatActivity
         numberOfCoupons = 0;
         final GridLayout gridLayout = (GridLayout) findViewById(R.id.mainGrid);
 
+        final ProgressBar spinner = (ProgressBar) findViewById(R.id.progressBar);
+        spinner.setVisibility(View.VISIBLE);
         mDatabase.child("Coupons").addListenerForSingleValueEvent(new ValueEventListener() {
             @Override
             public void onDataChange(final DataSnapshot allCoupons) {
@@ -169,7 +174,6 @@ public class MainActivity extends AppCompatActivity
                                         if (ds.getKey().equals(ds2.child("couponID").getValue())) {
                                             shouldDisplayCoupon = false;
                                         }
-
                                     }
 
                                     if(shouldDisplayCoupon) {
@@ -197,6 +201,7 @@ public class MainActivity extends AppCompatActivity
                             }
                         }
 
+                        spinner.setVisibility(View.GONE);
                         if(numberOfCoupons == 0) {
                             Toast.makeText(getApplicationContext(), "No Coupons Found", Toast.LENGTH_LONG).show();
                         }
