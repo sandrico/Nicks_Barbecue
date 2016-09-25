@@ -1,0 +1,102 @@
+<?xml version="1.0" encoding="utf-8"?>
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:id="@+id/content_item_details"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:paddingBottom="@dimen/activity_vertical_margin"
+    android:paddingLeft="16dp"
+    android:paddingRight="16dp"
+    android:paddingTop="@dimen/activity_vertical_margin"
+    app:layout_behavior="@string/appbar_scrolling_view_behavior"
+    tools:context="com.nicksbbq.nicksbarbecue.ItemDetails"
+    tools:showIn="@layout/app_bar_item_details">
+
+    <TextView
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_alignParentTop="true"
+        android:layout_centerHorizontal="true"
+        android:id="@+id/itemNameText"
+        android:textColor="@android:color/black"
+        android:textSize="30sp" />
+
+    <TextView
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:id="@+id/itemDesciptionText"
+        android:textColor="@android:color/darker_gray"
+        android:textSize="24sp"
+        android:layout_below="@+id/itemNameText"
+        android:layout_centerHorizontal="true" />
+
+    <TextView
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_alignParentBottom="true"
+        android:layout_alignParentStart="true"
+        android:textSize="16sp"
+        android:id="@+id/sidesText" />
+
+    <TextView
+        android:layout_width="wrap_content"
+    android:layout_height="wrap_content"
+    android:layout_below="@+id/itemDesciptionText"
+    android:layout_centerHorizontal="true"
+    android:layout_marginTop="30dp"
+    android:id="@+id/sizeText"
+    android:textSize="18sp"
+    android:textColor="@android:color/black" />
+
+    <TextView
+        android:id="@+id/itemPriceText"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="5dp"
+        android:textSize="36sp"
+        android:textColor="@android:color/holo_red_dark"
+        android:layout_below="@+id/sizeText"
+        android:layout_centerHorizontal="true" />
+
+    <TextView
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:id="@+id/sizeText2"
+        android:textSize="18sp"
+        android:textColor="@android:color/black"
+        android:layout_alignBaseline="@+id/sizeText"
+        android:layout_alignBottom="@+id/sizeText"
+        android:layout_alignParentStart="true" />
+
+    <TextView
+        android:id="@+id/itemPriceText3"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:textSize="36sp"
+        android:textColor="@android:color/holo_red_dark"
+        android:layout_alignBaseline="@+id/itemPriceText"
+        android:layout_alignBottom="@+id/itemPriceText"
+        android:layout_alignParentEnd="true" />
+
+    <TextView
+        android:id="@+id/itemPriceText2"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:textSize="36sp"
+        android:textColor="@android:color/holo_red_dark"
+        android:layout_alignBaseline="@+id/itemPriceText"
+        android:layout_alignBottom="@+id/itemPriceText"
+        android:layout_alignParentStart="true" />
+
+    <TextView
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:id="@+id/sizeText3"
+        android:textSize="18sp"
+        android:textColor="@android:color/black"
+        android:layout_alignBaseline="@+id/sizeText"
+        android:layout_alignBottom="@+id/sizeText"
+        android:layout_alignParentEnd="true"
+        android:layout_marginEnd="21dp" />
+</RelativeLayout>

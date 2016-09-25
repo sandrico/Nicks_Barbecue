@@ -37,12 +37,11 @@
                 <category android:name="android.intent.category.LAUNCHER" />
             </intent-filter>
         </activity>
-        <service
-            android:name=".MyFirebaseMessagingService">
-            <intent-filter>
-                <action android:name="com.google.firebase.MESSAGING_EVENT"/>
-            </intent-filter>
 
+        <service android:name=".MyFirebaseMessagingService">
+            <intent-filter>
+                <action android:name="com.google.firebase.MESSAGING_EVENT" />
+            </intent-filter>
         </service>
 
         <activity
@@ -64,7 +63,19 @@
 
         <activity
             android:name=".LocationsActivity"
-            android:label="@string/title_activity_locations"></activity>
+            android:label="@string/title_activity_locations" />
+        <activity
+            android:name=".DisplayFoodCategory"
+            android:label="@string/title_activity_display_food_category"
+            android:theme="@style/AppTheme.NoActionBar" />
+        <activity
+            android:name=".DisplayFoodItems"
+            android:label="@string/title_activity_display_food_items"
+            android:theme="@style/AppTheme.NoActionBar" />
+        <activity
+            android:name=".ItemDetails"
+            android:label="@string/title_activity_item_details"
+            android:theme="@style/AppTheme.NoActionBar"></activity>
     </application>
 
 </manifest>

@@ -15,7 +15,6 @@ import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.Toolbar;
 import android.util.Base64;
 import android.util.DisplayMetrics;
-import android.util.Log;
 import android.util.TypedValue;
 import android.view.Gravity;
 import android.view.Menu;
@@ -82,10 +81,8 @@ public class MainActivity extends AppCompatActivity
                 FirebaseUser user = firebaseAuth.getCurrentUser();
                 if (user != null) {
                     // User is signed in
-                    Log.i("Sign in", "onAuthStateChanged:signed_in:" + user.getUid());
                 } else {
                     // User is signed out
-                    Log.i("Sign out", "onAuthStateChanged:signed_out");
                 }
             }
         };
@@ -93,13 +90,11 @@ public class MainActivity extends AppCompatActivity
         mAuth.signInAnonymously().addOnCompleteListener(this, new OnCompleteListener<AuthResult>() {
             @Override
             public void onComplete(@NonNull Task<AuthResult> task) {
-                Log.i("Sign in", "signInAnonymously:onComplete:" + task.isSuccessful());
 
                 // If sign in fails, display a message to the user. If sign in succeeds
                 // the auth state listener will be notified and logic to handle the
                 // signed in user can be handled in the listener.
                 if (!task.isSuccessful()) {
-                    Log.i("Sign in", "signInAnonymously", task.getException());
                     Toast.makeText(getApplicationContext(), "Authentication failed.", Toast.LENGTH_SHORT).show();
                 }
             }
@@ -108,9 +103,9 @@ public class MainActivity extends AppCompatActivity
         mDatabase = FirebaseDatabase.getInstance().getReference();
 /*
         String key = mDatabase.push().getKey();
-        mDatabase.child("Coupons").child(key).child("couponDescription").setValue("$4.00 off when you spend over $19.99");
+        mDatabase.child("Coupons").child(key).child("couponDescription").setValue("$1.00 off a Italian Beef Sandwich");
         mDatabase.child("Coupons").child(key).child("couponExpiration").setValue("9/29/2016");
-        Bitmap bitmap = BitmapFactory.decodeResource(getResources(), R.drawable.logo);
+        Bitmap bitmap = BitmapFactory.decodeResource(getResources(), R.drawable.beef);
         ByteArrayOutputStream stream = new ByteArrayOutputStream();
         bitmap.compress(Bitmap.CompressFormat.PNG, 100, stream);
         byte[] bytes = stream.toByteArray();
@@ -270,7 +265,6 @@ public class MainActivity extends AppCompatActivity
 
                     @Override
                     public void onCancelled(DatabaseError databaseError) {
-                        Log.w("Coupon query", "getUser:onCancelled", databaseError.toException());
                     }
                 });
 
@@ -278,8 +272,6 @@ public class MainActivity extends AppCompatActivity
 
             @Override
             public void onCancelled(DatabaseError databaseError) {
-                Log.w("Coupon query", "getUser:onCancelled", databaseError.toException());
-                // ...
                 }
         });
     }
@@ -327,6 +319,9 @@ public class MainActivity extends AppCompatActivity
             startActivity(i);
         } else if (id == R.id.locations) {
             Intent i = new Intent(getApplicationContext(), LocationsActivity.class);
+            startActivity(i);
+        } else if (id == R.id.menu) {
+            Intent i = new Intent(getApplicationContext(), DisplayFoodCategory.class);
             startActivity(i);
         }
 

@@ -8,5 +8,8 @@
         <item
             android:id="@+id/locations"
             android:title="Locations" />
+        <item
+            android:id="@+id/menu"
+            android:title="Menu" />
     </group>
 </menu>
