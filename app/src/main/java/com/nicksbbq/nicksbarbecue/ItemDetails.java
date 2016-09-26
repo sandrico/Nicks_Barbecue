@@ -1,6 +1,8 @@
 package com.nicksbbq.nicksbarbecue;
 
 import android.content.Intent;
+import android.graphics.Bitmap;
+import android.graphics.BitmapFactory;
 import android.os.Bundle;
 import android.support.design.widget.NavigationView;
 import android.support.v4.view.GravityCompat;
@@ -8,8 +10,10 @@ import android.support.v4.widget.DrawerLayout;
 import android.support.v7.app.ActionBarDrawerToggle;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.Toolbar;
+import android.util.Base64;
 import android.view.Menu;
 import android.view.MenuItem;
+import android.widget.ImageView;
 import android.widget.TextView;
 
 import com.google.firebase.database.DataSnapshot;
@@ -52,6 +56,7 @@ public class ItemDetails extends AppCompatActivity
             public void onDataChange(DataSnapshot item) {
                 TextView itemName = (TextView) findViewById(R.id.itemNameText);
                 TextView itemDescription = (TextView) findViewById(R.id.itemDesciptionText);
+                ImageView itemImage = (ImageView) findViewById(R.id.itemImageView);
                 TextView itemPrice = (TextView) findViewById(R.id.itemPriceText);
                 TextView itemPrice2 = (TextView) findViewById(R.id.itemPriceText2);
                 TextView itemPrice3 = (TextView) findViewById(R.id.itemPriceText3);
@@ -64,6 +69,13 @@ public class ItemDetails extends AppCompatActivity
                 String description = String.valueOf(item.child("foodDescription").getValue());
                 if(!description.equals("null")) {
                     itemDescription.setText(description);
+                }
+
+                String base64Image = String.valueOf(item.child("foodImage").getValue());
+                if(!base64Image.equals("null")) {
+                    byte[] imageAsBytes = Base64.decode(base64Image.getBytes(), Base64.DEFAULT);
+                    Bitmap image = BitmapFactory.decodeByteArray(imageAsBytes, 0, imageAsBytes.length);
+                    itemImage.setImageBitmap(image);
                 }
 
                 String sizeString = String.valueOf(item.child("foodSize").getValue());

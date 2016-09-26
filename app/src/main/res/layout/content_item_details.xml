@@ -14,60 +14,67 @@
     tools:showIn="@layout/app_bar_item_details">
 
     <TextView
+        android:id="@+id/itemNameText"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_alignParentTop="true"
         android:layout_centerHorizontal="true"
-        android:id="@+id/itemNameText"
         android:textColor="@android:color/black"
         android:textSize="30sp" />
 
     <TextView
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:id="@+id/itemDesciptionText"
-        android:textColor="@android:color/darker_gray"
-        android:textSize="24sp"
-        android:layout_below="@+id/itemNameText"
-        android:layout_centerHorizontal="true" />
-
-    <TextView
+        android:id="@+id/sidesText"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_alignParentBottom="true"
         android:layout_alignParentStart="true"
-        android:textSize="16sp"
-        android:id="@+id/sidesText" />
+        android:textSize="16sp" />
 
     <TextView
+        android:id="@+id/sizeText3"
         android:layout_width="wrap_content"
-    android:layout_height="wrap_content"
-    android:layout_below="@+id/itemDesciptionText"
-    android:layout_centerHorizontal="true"
-    android:layout_marginTop="30dp"
-    android:id="@+id/sizeText"
-    android:textSize="18sp"
-    android:textColor="@android:color/black" />
+        android:layout_height="wrap_content"
+        android:textSize="18sp"
+        android:textColor="@android:color/black"
+        android:layout_alignBaseline="@+id/sizeText"
+        android:layout_alignBottom="@+id/sizeText"
+        android:layout_alignParentEnd="true"
+        android:layout_marginEnd="21dp" />
 
     <TextView
         android:id="@+id/itemPriceText"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:layout_marginTop="5dp"
         android:textSize="36sp"
         android:textColor="@android:color/holo_red_dark"
         android:layout_below="@+id/sizeText"
         android:layout_centerHorizontal="true" />
 
     <TextView
+        android:id="@+id/sizeText"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:id="@+id/sizeText2"
         android:textSize="18sp"
         android:textColor="@android:color/black"
-        android:layout_alignBaseline="@+id/sizeText"
-        android:layout_alignBottom="@+id/sizeText"
-        android:layout_alignParentStart="true" />
+        android:layout_below="@+id/itemImageView"
+        android:layout_centerHorizontal="true" />
+
+    <TextView
+        android:id="@+id/itemDesciptionText"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:textColor="@android:color/darker_gray"
+        android:textSize="24sp"
+        android:layout_below="@+id/itemNameText"
+        android:layout_centerHorizontal="true" />
+
+    <ImageView
+        android:layout_width="300dp"
+        android:layout_height="200dp"
+        android:layout_below="@+id/itemDesciptionText"
+        android:layout_centerHorizontal="true"
+        android:layout_marginTop="8dp"
+        android:id="@+id/itemImageView" />
 
     <TextView
         android:id="@+id/itemPriceText3"
@@ -75,8 +82,7 @@
         android:layout_height="wrap_content"
         android:textSize="36sp"
         android:textColor="@android:color/holo_red_dark"
-        android:layout_alignBaseline="@+id/itemPriceText"
-        android:layout_alignBottom="@+id/itemPriceText"
+        android:layout_below="@+id/sizeText3"
         android:layout_alignParentEnd="true" />
 
     <TextView
@@ -85,18 +91,15 @@
         android:layout_height="wrap_content"
         android:textSize="36sp"
         android:textColor="@android:color/holo_red_dark"
-        android:layout_alignBaseline="@+id/itemPriceText"
-        android:layout_alignBottom="@+id/itemPriceText"
+        android:layout_below="@+id/sizeText2"
         android:layout_alignParentStart="true" />
 
     <TextView
+        android:id="@+id/sizeText2"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:id="@+id/sizeText3"
         android:textSize="18sp"
         android:textColor="@android:color/black"
-        android:layout_alignBaseline="@+id/sizeText"
-        android:layout_alignBottom="@+id/sizeText"
-        android:layout_alignParentEnd="true"
-        android:layout_marginEnd="21dp" />
+        android:layout_below="@+id/itemImageView"
+        android:layout_toEndOf="@+id/sidesText" />
 </RelativeLayout>

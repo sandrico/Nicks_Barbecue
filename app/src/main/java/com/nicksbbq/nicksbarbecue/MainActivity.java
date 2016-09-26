@@ -51,11 +51,111 @@ public class MainActivity extends AppCompatActivity
     static ArrayList<Bitmap> couponImages;
     static ArrayList<String> couponDescriptions;
     static ArrayList<String> couponExpirations;
-    private int position, numberOfCoupons;
+    private int numberOfCoupons, position;
+
+    private GridLayout gridLayout;
+    private ProgressBar spinner;
 
     private FirebaseAuth mAuth;
     private FirebaseAuth.AuthStateListener mAuthListener;
     private DatabaseReference mDatabase;
+
+    /*
+    public class DownloadTask extends AsyncTask<DataSnapshot, Void, Coupon> {
+
+        private DataSnapshot ds;
+
+        @Override
+        protected Coupon doInBackground(DataSnapshot... dataSnapshots) {
+            ds = dataSnapshots[0];
+            Coupon coupon = ds.getValue(Coupon.class);
+            return coupon;
+        }
+
+        @Override
+        protected void onPostExecute(Coupon coupon) {
+            super.onPostExecute(coupon);
+
+            String exp = coupon.couponExpiration;
+            Date expDate = null;
+            try {
+                expDate = new SimpleDateFormat("MM/dd/yyyy").parse(exp);
+            } catch (ParseException e) {
+                e.printStackTrace();
+            }
+            if(expDate.after(Calendar.getInstance().getTime())) {
+                numberOfCoupons++;
+                couponIDs.add(ds.getKey());
+                couponDescriptions.add(coupon.couponDescription);
+                couponExpirations.add(exp);
+
+                String base64Image = coupon.couponImage;
+                byte[] imageAsBytes = Base64.decode(base64Image.getBytes(), Base64.DEFAULT);
+                Bitmap image = BitmapFactory.decodeByteArray(imageAsBytes, 0, imageAsBytes.length);
+                couponImages.add(image);
+
+                DisplayMetrics metrics = new DisplayMetrics();
+                getWindowManager().getDefaultDisplay().getMetrics(metrics);
+                GridLayout.LayoutParams relativeLP = new GridLayout.LayoutParams();
+                relativeLP.width = metrics.widthPixels/2-30;
+                relativeLP.height = GridLayout.LayoutParams.WRAP_CONTENT; //450
+
+                final RelativeLayout relativeLayout = new RelativeLayout(MainActivity.this);
+                relativeLayout.setId(numberOfCoupons-1);
+                relativeLayout.setGravity(Gravity.FILL);
+                //DisplayMetrics metrics = new DisplayMetrics();
+                //getWindowManager().getDefaultDisplay().getMetrics(metrics);
+                //relativeLayout.setMinimumWidth(metrics.widthPixels/2-20);
+                Resources r = getResources();
+                float pxLeftMargin = TypedValue.applyDimension(TypedValue.COMPLEX_UNIT_DIP, 5, r.getDisplayMetrics());
+                relativeLP.setMargins(Math.round(pxLeftMargin), Math.round(pxLeftMargin), Math.round(pxLeftMargin), Math.round(pxLeftMargin));
+                relativeLayout.setBackgroundColor(Color.WHITE);
+                relativeLayout.setLayoutParams(relativeLP);
+                relativeLayout.setOnClickListener(new View.OnClickListener() {
+                    @Override
+                    public void onClick(View view) {
+                        Intent intent = new Intent(getApplicationContext(), DisplayCouponActivity.class);
+                        intent.putExtra("position", relativeLayout.getId());
+                        startActivity(intent);
+                    }
+                });
+
+                int dim = (int) TypedValue.applyDimension(TypedValue.COMPLEX_UNIT_DIP, 100, getResources().getDisplayMetrics());
+                RelativeLayout.LayoutParams imageLP = new RelativeLayout.LayoutParams(dim, dim);
+                ImageView imageView = new ImageView(MainActivity.this);
+                imageView.setImageBitmap(couponImages.get(numberOfCoupons-1));
+                imageView.setId(View.generateViewId());
+                imageLP.addRule(RelativeLayout.CENTER_HORIZONTAL);
+                relativeLayout.addView(imageView, imageLP);
+
+                RelativeLayout.LayoutParams descriptionLP = new RelativeLayout.LayoutParams(
+                        RelativeLayout.LayoutParams.WRAP_CONTENT,
+                        RelativeLayout.LayoutParams.WRAP_CONTENT);
+                TextView description = new TextView(MainActivity.this);
+                description.setText(couponDescriptions.get(numberOfCoupons-1));
+                description.setTextColor(Color.RED);
+                description.setId(View.generateViewId());
+                descriptionLP.addRule(RelativeLayout.CENTER_HORIZONTAL);
+                descriptionLP.addRule(RelativeLayout.BELOW, imageView.getId());
+                relativeLayout.addView(description, descriptionLP);
+
+                RelativeLayout.LayoutParams expirationLP = new RelativeLayout.LayoutParams(
+                        RelativeLayout.LayoutParams.WRAP_CONTENT,
+                        RelativeLayout.LayoutParams.WRAP_CONTENT);
+                TextView expiration = new TextView(MainActivity.this);
+                expiration.setText("Expires "+ couponExpirations.get(numberOfCoupons-1));
+                expiration.setTextColor(Color.BLACK);
+                expiration.setId(View.generateViewId());
+                expirationLP.addRule(RelativeLayout.CENTER_HORIZONTAL);
+                expirationLP.addRule(RelativeLayout.BELOW, description.getId());
+                relativeLayout.addView(expiration, expirationLP);
+
+                gridLayout.addView(relativeLayout);
+            }
+
+        }
+    }
+    */
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -101,21 +201,13 @@ public class MainActivity extends AppCompatActivity
         });
 
         mDatabase = FirebaseDatabase.getInstance().getReference();
-/*
-        String key = mDatabase.push().getKey();
-        mDatabase.child("Coupons").child(key).child("couponDescription").setValue("$1.00 off a Italian Beef Sandwich");
-        mDatabase.child("Coupons").child(key).child("couponExpiration").setValue("9/29/2016");
-        Bitmap bitmap = BitmapFactory.decodeResource(getResources(), R.drawable.beef);
-        ByteArrayOutputStream stream = new ByteArrayOutputStream();
-        bitmap.compress(Bitmap.CompressFormat.PNG, 100, stream);
-        byte[] bytes = stream.toByteArray();
-        String base64Image = Base64.encodeToString(bytes, Base64.DEFAULT);
-        mDatabase.child("Coupons").child(key).child("couponImage").setValue(base64Image);
-*/
+
         couponIDs = new ArrayList<String>();
         couponImages = new ArrayList<Bitmap>();
         couponDescriptions = new ArrayList<String>();
         couponExpirations = new ArrayList<String>();
+        gridLayout = (GridLayout) findViewById(R.id.mainGrid);
+        spinner = (ProgressBar) findViewById(R.id.progressBar);
 
         createCoupons();
 
@@ -127,9 +219,7 @@ public class MainActivity extends AppCompatActivity
         couponDescriptions.clear();
         couponExpirations.clear();
         numberOfCoupons = 0;
-        final GridLayout gridLayout = (GridLayout) findViewById(R.id.mainGrid);
 
-        final ProgressBar spinner = (ProgressBar) findViewById(R.id.progressBar);
         spinner.setVisibility(View.VISIBLE);
         mDatabase.child("Coupons").addListenerForSingleValueEvent(new ValueEventListener() {
             @Override
@@ -140,6 +230,8 @@ public class MainActivity extends AppCompatActivity
                         if(usedCoupons != null && !usedCoupons.hasChildren()) {
                             if(allCoupons != null && allCoupons.hasChildren()) {
                                 for (DataSnapshot ds: allCoupons.getChildren()) {
+                                    //DownloadTask task = new DownloadTask();
+                                    //task.execute(ds);
                                     Coupon coupon = ds.getValue(Coupon.class);
                                     String exp = coupon.couponExpiration;
                                     Date expDate = null;
@@ -172,6 +264,9 @@ public class MainActivity extends AppCompatActivity
                                     }
 
                                     if(shouldDisplayCoupon) {
+                                        //DownloadTask task = new DownloadTask();
+                                        //task.execute(ds);
+
                                         Coupon coupon = ds.getValue(Coupon.class);
                                         String exp = coupon.couponExpiration;
                                         Date expDate = null;
@@ -191,6 +286,7 @@ public class MainActivity extends AppCompatActivity
                                             Bitmap image = BitmapFactory.decodeByteArray(imageAsBytes, 0, imageAsBytes.length);
                                             couponImages.add(image);
                                         }
+
                                     }
                                 }
                             }
@@ -211,9 +307,6 @@ public class MainActivity extends AppCompatActivity
                             final RelativeLayout relativeLayout = new RelativeLayout(MainActivity.this);
                             relativeLayout.setId(position);
                             relativeLayout.setGravity(Gravity.FILL);
-                            //DisplayMetrics metrics = new DisplayMetrics();
-                            //getWindowManager().getDefaultDisplay().getMetrics(metrics);
-                            //relativeLayout.setMinimumWidth(metrics.widthPixels/2-20);
                             Resources r = getResources();
                             float pxLeftMargin = TypedValue.applyDimension(TypedValue.COMPLEX_UNIT_DIP, 5, r.getDisplayMetrics());
                             relativeLP.setMargins(Math.round(pxLeftMargin), Math.round(pxLeftMargin), Math.round(pxLeftMargin), Math.round(pxLeftMargin));
@@ -225,7 +318,6 @@ public class MainActivity extends AppCompatActivity
                                     Intent intent = new Intent(getApplicationContext(), DisplayCouponActivity.class);
                                     intent.putExtra("position", relativeLayout.getId());
                                     startActivity(intent);
-                                    finish();
                                 }
                             });
 
@@ -259,8 +351,9 @@ public class MainActivity extends AppCompatActivity
                             expirationLP.addRule(RelativeLayout.BELOW, description.getId());
                             relativeLayout.addView(expiration, expirationLP);
 
-                            gridLayout.addView(relativeLayout, position);
+                            gridLayout.addView(relativeLayout);
                         }
+
                     }
 
                     @Override
