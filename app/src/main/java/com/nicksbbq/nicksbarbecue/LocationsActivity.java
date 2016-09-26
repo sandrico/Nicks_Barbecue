@@ -40,11 +40,6 @@ public class LocationsActivity extends FragmentActivity implements OnMapReadyCal
     private LocationRequest mLocationRequest;
     private LatLng myLocation;
 
-    private Marker burbankMarker;
-    private Marker palosMarker;
-    private Marker tinleyMarker;
-    private Marker romeoMarker;
-    private Marker homerMarker;
     private boolean firstTime;
 
     @Override
@@ -167,6 +162,12 @@ public class LocationsActivity extends FragmentActivity implements OnMapReadyCal
         LatLng tinleyPark = new LatLng(41.588739, -87.785334);
         LatLng romeoville = new LatLng(41.653091, -88.080102);
         LatLng homerGlen = new LatLng(41.601891, -87.930587);
+
+        Marker burbankMarker;
+        Marker palosMarker;
+        Marker tinleyMarker;
+        Marker romeoMarker;
+        Marker homerMarker;
 
         burbankMarker = mMap.addMarker(new MarkerOptions().position(burbank).title("Nick's BBQ - Burbank").icon(BitmapDescriptorFactory.fromResource(R.drawable.minifatboy)));
         palosMarker = mMap.addMarker(new MarkerOptions().position(palosHeights).title("Nick's BBQ - Palos Heights").icon(BitmapDescriptorFactory.fromResource(R.drawable.minifatboy)));

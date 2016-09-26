@@ -26,7 +26,6 @@ import java.util.ArrayList;
 public class DisplayFoodCategory extends AppCompatActivity
         implements NavigationView.OnNavigationItemSelectedListener {
 
-    private DatabaseReference mDatabase;
     private ArrayList<String> menuCategoriesArray;
     private ArrayAdapter<String> adapter;
 
@@ -60,7 +59,7 @@ public class DisplayFoodCategory extends AppCompatActivity
             }
         });
 
-        mDatabase = FirebaseDatabase.getInstance().getReference();
+        DatabaseReference mDatabase = FirebaseDatabase.getInstance().getReference();
         mDatabase.child("Menu").addListenerForSingleValueEvent(new ValueEventListener() {
             @Override
             public void onDataChange(DataSnapshot menuCategories) {
@@ -76,8 +75,6 @@ public class DisplayFoodCategory extends AppCompatActivity
 
             }
         });
-
-
     }
 
     @Override
