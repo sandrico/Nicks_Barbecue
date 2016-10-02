@@ -13,7 +13,9 @@ import android.support.v7.widget.Toolbar;
 import android.util.Base64;
 import android.view.Menu;
 import android.view.MenuItem;
+import android.view.View;
 import android.widget.ImageView;
+import android.widget.ProgressBar;
 import android.widget.TextView;
 
 import com.google.firebase.database.DataSnapshot;
@@ -28,6 +30,7 @@ public class ItemDetails extends AppCompatActivity
         implements NavigationView.OnNavigationItemSelectedListener {
 
     private DatabaseReference mDatabase;
+    private ProgressBar spinner;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -44,6 +47,9 @@ public class ItemDetails extends AppCompatActivity
 
         NavigationView navigationView = (NavigationView) findViewById(R.id.nav_view);
         navigationView.setNavigationItemSelectedListener(this);
+
+        spinner = (ProgressBar) findViewById(R.id.progressBarFoodItem);
+        spinner.setVisibility(View.VISIBLE);
 
         Intent i = getIntent();
         final String foodCategory = i.getStringExtra("foodCategory");
@@ -117,7 +123,7 @@ public class ItemDetails extends AppCompatActivity
                 }  else {
                     dinnerSides.setText("");
                 }
-
+                spinner.setVisibility(View.GONE);
             }
 
             @Override

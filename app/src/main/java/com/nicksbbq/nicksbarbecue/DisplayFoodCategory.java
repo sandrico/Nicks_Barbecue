@@ -14,6 +14,7 @@ import android.view.View;
 import android.widget.AdapterView;
 import android.widget.ArrayAdapter;
 import android.widget.ListView;
+import android.widget.ProgressBar;
 
 import com.google.firebase.database.DataSnapshot;
 import com.google.firebase.database.DatabaseError;
@@ -28,6 +29,7 @@ public class DisplayFoodCategory extends AppCompatActivity
 
     private ArrayList<String> menuCategoriesArray;
     private ArrayAdapter<String> adapter;
+    private ProgressBar spinner;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -44,6 +46,9 @@ public class DisplayFoodCategory extends AppCompatActivity
 
         NavigationView navigationView = (NavigationView) findViewById(R.id.nav_view);
         navigationView.setNavigationItemSelectedListener(this);
+
+        spinner = (ProgressBar) findViewById(R.id.progressBarFoodCategory);
+        spinner.setVisibility(View.VISIBLE);
 
         menuCategoriesArray = new ArrayList<String>();
         adapter = new ArrayAdapter(this, android.R.layout.simple_list_item_1, menuCategoriesArray);
@@ -68,6 +73,7 @@ public class DisplayFoodCategory extends AppCompatActivity
                     menuCategoriesArray.add(ds.getKey());
                 }
                 adapter.notifyDataSetChanged();
+                spinner.setVisibility(View.GONE);
             }
 
             @Override
@@ -75,6 +81,7 @@ public class DisplayFoodCategory extends AppCompatActivity
 
             }
         });
+
     }
 
     @Override
