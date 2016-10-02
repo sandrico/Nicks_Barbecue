@@ -232,8 +232,7 @@ public class MainActivity extends AppCompatActivity
                                 for (DataSnapshot ds: allCoupons.getChildren()) {
                                     //DownloadTask task = new DownloadTask();
                                     //task.execute(ds);
-                                    Coupon coupon = ds.getValue(Coupon.class);
-                                    String exp = coupon.couponExpiration;
+                                    String exp = ds.child("couponExpiration").getValue().toString();
                                     Date expDate = null;
                                     try {
                                         expDate = new SimpleDateFormat("MM/dd/yyyy").parse(exp);
@@ -241,6 +240,7 @@ public class MainActivity extends AppCompatActivity
                                         e.printStackTrace();
                                     }
                                     if(expDate.after(Calendar.getInstance().getTime())) {
+                                        Coupon coupon = ds.getValue(Coupon.class);
                                         numberOfCoupons++;
                                         couponIDs.add(ds.getKey());
                                         couponDescriptions.add(coupon.couponDescription);
@@ -266,9 +266,7 @@ public class MainActivity extends AppCompatActivity
                                     if(shouldDisplayCoupon) {
                                         //DownloadTask task = new DownloadTask();
                                         //task.execute(ds);
-
-                                        Coupon coupon = ds.getValue(Coupon.class);
-                                        String exp = coupon.couponExpiration;
+                                        String exp = ds.child("couponExpiration").getValue().toString();
                                         Date expDate = null;
                                         try {
                                             expDate = new SimpleDateFormat("MM/dd/yyyy").parse(exp);
@@ -276,6 +274,7 @@ public class MainActivity extends AppCompatActivity
                                             e.printStackTrace();
                                         }
                                         if (expDate.after(Calendar.getInstance().getTime())) {
+                                            Coupon coupon = ds.getValue(Coupon.class);
                                             numberOfCoupons++;
                                             couponIDs.add(ds.getKey());
                                             couponDescriptions.add(coupon.couponDescription);
