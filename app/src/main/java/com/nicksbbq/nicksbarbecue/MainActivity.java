@@ -175,6 +175,15 @@ public class MainActivity extends AppCompatActivity
 
         mAuth = FirebaseAuth.getInstance();
 
+        mDatabase = FirebaseDatabase.getInstance().getReference();
+
+        couponIDs = new ArrayList<String>();
+        couponImages = new ArrayList<Bitmap>();
+        couponDescriptions = new ArrayList<String>();
+        couponExpirations = new ArrayList<String>();
+        gridLayout = (GridLayout) findViewById(R.id.mainGrid);
+        spinner = (ProgressBar) findViewById(R.id.progressBar);
+
         mAuthListener = new FirebaseAuth.AuthStateListener() {
             @Override
             public void onAuthStateChanged(@NonNull FirebaseAuth firebaseAuth) {
@@ -196,20 +205,13 @@ public class MainActivity extends AppCompatActivity
                 // signed in user can be handled in the listener.
                 if (!task.isSuccessful()) {
                     Toast.makeText(getApplicationContext(), "Authentication failed.", Toast.LENGTH_SHORT).show();
+                } else {
+                    createCoupons();
                 }
             }
         });
 
-        mDatabase = FirebaseDatabase.getInstance().getReference();
-
-        couponIDs = new ArrayList<String>();
-        couponImages = new ArrayList<Bitmap>();
-        couponDescriptions = new ArrayList<String>();
-        couponExpirations = new ArrayList<String>();
-        gridLayout = (GridLayout) findViewById(R.id.mainGrid);
-        spinner = (ProgressBar) findViewById(R.id.progressBar);
-
-        createCoupons();
+        //createCoupons();
 
     }
 
