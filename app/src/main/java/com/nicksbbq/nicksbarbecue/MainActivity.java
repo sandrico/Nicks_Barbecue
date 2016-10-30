@@ -241,7 +241,8 @@ public class MainActivity extends AppCompatActivity
                                     } catch (ParseException e) {
                                         e.printStackTrace();
                                     }
-                                    if(expDate.after(Calendar.getInstance().getTime())) {
+                                    expDate.setTime(expDate.getTime() + 1000*60*60*23 + 1000*60*59);
+                                    if(expDate.after(Calendar.getInstance().getTime())){
                                         Coupon coupon = ds.getValue(Coupon.class);
                                         numberOfCoupons++;
                                         couponIDs.add(ds.getKey());
@@ -275,6 +276,7 @@ public class MainActivity extends AppCompatActivity
                                         } catch (ParseException e) {
                                             e.printStackTrace();
                                         }
+                                        expDate.setTime(expDate.getTime() + 1000*60*60*23 + 1000*60*59);
                                         if (expDate.after(Calendar.getInstance().getTime())) {
                                             Coupon coupon = ds.getValue(Coupon.class);
                                             numberOfCoupons++;

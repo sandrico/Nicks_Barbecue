@@ -201,7 +201,7 @@ public class LocationsActivity extends FragmentActivity implements OnMapReadyCal
         TextView phoneText = (TextView) findViewById(R.id.phoneText);
 
         if(marker.getTitle().equals("Nick's BBQ - Burbank")) {
-            phoneText.setText("Nick's BBQ - Burbank\nPhone Number: 708-233-7427\nAddress: 6945 W. 79 St.");
+            phoneText.setText("Nick's BBQ - Burbank\nPhone Number: 708-233-7427\nAddress: 6945 W. 79th St.");
         } else if(marker.getTitle().equals("Nick's BBQ - Palos Heights")) {
             phoneText.setText("Nick's BBQ - Palos Heights\nPhone Number: 708-923-7427\nAddress: 12658 S. Harlem Ave.");
         } else if(marker.getTitle().equals("Nick's BBQ - Tinley Park")) {
