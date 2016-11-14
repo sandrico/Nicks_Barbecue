@@ -5,6 +5,7 @@ import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.pm.PackageManager;
 import android.location.Location;
+import android.net.Uri;
 import android.os.Bundle;
 import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
@@ -193,6 +194,13 @@ public class DisplayCouponActivity extends AppCompatActivity
         } else if (id == R.id.locations) {
             Intent i = new Intent(getApplicationContext(), LocationsActivity.class);
             startActivity(i);
+        } else if (id == R.id.menu) {
+            Intent i = new Intent(getApplicationContext(), DisplayFoodCategory.class);
+            startActivity(i);
+        } else if (id == R.id.order) {
+            Uri uri = Uri.parse("http://www.nicksribs.com/pg4.html");
+            Intent intent = new Intent(Intent.ACTION_VIEW, uri);
+            startActivity(intent);
         }
 
         DrawerLayout drawer = (DrawerLayout) findViewById(R.id.drawer_layout);

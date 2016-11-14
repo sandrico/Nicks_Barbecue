@@ -3,6 +3,7 @@ package com.nicksbbq.nicksbarbecue;
 import android.content.Intent;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
+import android.net.Uri;
 import android.os.Bundle;
 import android.support.design.widget.NavigationView;
 import android.support.v4.view.GravityCompat;
@@ -180,6 +181,10 @@ public class ItemDetails extends AppCompatActivity
         } else if (id == R.id.menu) {
             Intent i = new Intent(getApplicationContext(), DisplayFoodCategory.class);
             startActivity(i);
+        } else if (id == R.id.order) {
+            Uri uri = Uri.parse("http://www.nicksribs.com/pg4.html");
+            Intent intent = new Intent(Intent.ACTION_VIEW, uri);
+            startActivity(intent);
         }
 
         DrawerLayout drawer = (DrawerLayout) findViewById(R.id.drawer_layout);

@@ -8,7 +8,7 @@ android {
         applicationId "com.nicksbbq.nicksbarbecue"
         minSdkVersion 21
         targetSdkVersion 24
-        versionCode 3
+        versionCode 5
         versionName "1.0"
     }
     buildTypes {
@@ -21,14 +21,14 @@ android {
 
 dependencies {
     compile fileTree(include: ['*.jar'], dir: 'libs')
-    compile 'com.google.firebase:firebase-auth:9.4.0'
-    compile 'com.google.firebase:firebase-database:9.4.0'
+    compile 'com.google.firebase:firebase-auth:9.8.0'
+    compile 'com.google.firebase:firebase-database:9.8.0'
     compile 'com.android.support:appcompat-v7:24.2.1'
     compile 'com.android.support:support-v4:24.2.1'
     compile 'com.android.support:design:24.2.1'
-    compile 'com.google.android.gms:play-services-location:9.4.0'
-    compile 'com.google.android.gms:play-services-maps:9.4.0'
-    compile 'com.google.firebase:firebase-messaging:9.4.0'
+    compile 'com.google.android.gms:play-services-location:9.8.0'
+    compile 'com.google.android.gms:play-services-maps:9.8.0'
+    compile 'com.google.firebase:firebase-messaging:9.8.0'
     testCompile 'junit:junit:4.12'
 }
 

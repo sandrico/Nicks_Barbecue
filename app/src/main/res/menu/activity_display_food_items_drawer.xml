@@ -11,5 +11,8 @@
         <item
             android:id="@+id/menu"
             android:title="Menu" />
+        <item
+            android:id="@+id/order"
+            android:title="Order Online" />
     </group>
 </menu>
