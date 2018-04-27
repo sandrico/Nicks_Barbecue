@@ -158,7 +158,7 @@ public class LocationsActivity extends FragmentActivity implements OnMapReadyCal
         mMap.clear();
 
         LatLng burbank = new LatLng(41.747949, -87.794007);
-        LatLng palosHeights = new LatLng(41.660979, -87.796735);
+        LatLng palosHeights = new LatLng(41.662299, -87.753481);
         LatLng tinleyPark = new LatLng(41.588739, -87.785334);
         LatLng romeoville = new LatLng(41.653091, -88.080102);
         LatLng homerGlen = new LatLng(41.601891, -87.930587);
@@ -170,7 +170,7 @@ public class LocationsActivity extends FragmentActivity implements OnMapReadyCal
         Marker homerMarker;
 
         burbankMarker = mMap.addMarker(new MarkerOptions().position(burbank).title("Nick's BBQ - Burbank").icon(BitmapDescriptorFactory.fromResource(R.drawable.minifatboy)));
-        palosMarker = mMap.addMarker(new MarkerOptions().position(palosHeights).title("Nick's BBQ - Palos Heights").icon(BitmapDescriptorFactory.fromResource(R.drawable.minifatboy)));
+        palosMarker = mMap.addMarker(new MarkerOptions().position(palosHeights).title("Nick's BBQ - Alsip").icon(BitmapDescriptorFactory.fromResource(R.drawable.minifatboy)));
         tinleyMarker = mMap.addMarker(new MarkerOptions().position(tinleyPark).title("Nick's BBQ - Tinley Park").icon(BitmapDescriptorFactory.fromResource(R.drawable.minifatboy)));
         romeoMarker = mMap.addMarker(new MarkerOptions().position(romeoville).title("Nick's BBQ - Romeoville").icon(BitmapDescriptorFactory.fromResource(R.drawable.minifatboy)));
         homerMarker = mMap.addMarker(new MarkerOptions().position(homerGlen).title("Nick's BBQ - Homer Glen").icon(BitmapDescriptorFactory.fromResource(R.drawable.minifatboy)));
@@ -202,8 +202,8 @@ public class LocationsActivity extends FragmentActivity implements OnMapReadyCal
 
         if(marker.getTitle().equals("Nick's BBQ - Burbank")) {
             phoneText.setText("Nick's BBQ - Burbank\nPhone Number: 708-233-7427\nAddress: 6945 W. 79th St.");
-        } else if(marker.getTitle().equals("Nick's BBQ - Palos Heights")) {
-            phoneText.setText("Nick's BBQ - Palos Heights\nPhone Number: 708-923-7427\nAddress: 12658 S. Harlem Ave.");
+        } else if(marker.getTitle().equals("Nick's BBQ - Alsip")) {
+            phoneText.setText("Nick's BBQ - Alsip\nPhone Number: 708-923-7427\nAddress: 5500 W. Cal Sag Rd.");
         } else if(marker.getTitle().equals("Nick's BBQ - Tinley Park")) {
             phoneText.setText("Nick's BBQ - Tinley Park\nPhone Number: 708-444-7427\nAddress: 16638 S. Oak Park");
         } else if(marker.getTitle().equals("Nick's BBQ - Romeoville")) {

@@ -229,8 +229,8 @@ public class DisplayCouponActivity extends AppCompatActivity
                     burbank.setLatitude(41.747949);
                     burbank.setLongitude(-87.794007);
                     Location palosHeights = new Location("Palos Heights");
-                    palosHeights.setLatitude(41.660979);
-                    palosHeights.setLongitude(-87.796735);
+                    palosHeights.setLatitude(41.662299);
+                    palosHeights.setLongitude(-87.753481);
                     Location tinleyPark = new Location("Tinley Park");
                     tinleyPark.setLatitude(41.588739);
                     tinleyPark.setLongitude(-87.785334);
